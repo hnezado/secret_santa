@@ -3,7 +3,7 @@
     "name": "Alain",
     "family_id": 1,
     "age": "adult",
-    "expt": [
+    "exceptions": [
       "charlene",
       "clea"
     ]
@@ -12,7 +12,7 @@
     "name": "Fatiha",
     "family_id": 1,
     "age": "adult",
-    "expt": [
+    "exceptions": [
       "sylvain",
       "lucien"
     ]
@@ -21,7 +21,7 @@
     "name": "Sylvain",
     "family_id": 2,
     "age": "adult",
-    "expt": [
+    "exceptions": [
       "victor",
       "margot"
     ]
@@ -30,19 +30,19 @@
     "name": "Lorys",
     "family_id": 2,
     "age": "child",
-    "expt": []
+    "exceptions": []
   },
   "lysandre": {
     "name": "Lysandre",
     "family_id": 2,
     "age": "child",
-    "expt": []
+    "exceptions": []
   },
   "fabien": {
     "name": "Fabien",
     "family_id": 3,
     "age": "adult",
-    "expt": [
+    "exceptions": [
       "fatiha"
     ]
   },
@@ -50,7 +50,7 @@
     "name": "Anais",
     "family_id": 3,
     "age": "adult",
-    "expt": [
+    "exceptions": [
       "alain",
       "lysandre"
     ]
@@ -59,19 +59,19 @@
     "name": "Zoe",
     "family_id": 3,
     "age": "child",
-    "expt": []
+    "exceptions": []
   },
   "clea": {
     "name": "Clea",
     "family_id": 3,
     "age": "child",
-    "expt": []
+    "exceptions": []
   },
   "charlene": {
     "name": "Charlene",
     "family_id": 4,
     "age": "adult",
-    "expt": [
+    "exceptions": [
       "fabien",
       "zoe"
     ]
@@ -80,7 +80,7 @@
     "name": "Victor",
     "family_id": 4,
     "age": "adult",
-    "expt": [
+    "exceptions": [
       "anais",
       "lorys"
     ]
@@ -89,26 +89,26 @@
     "name": "Margot",
     "family_id": 4,
     "age": "child",
-    "expt": []
+    "exceptions": []
   },
   "lucien": {
     "name": "Lucien",
     "family_id": 4,
     "age": "child",
-    "expt": []
+    "exceptions": []
   },
   "adeline": {
     "name": "Adeline",
     "family_id": 5,
     "age": "adult",
-    "expt": [
+    "exceptions": [
     ]
   },
   "hector": {
     "name": "Hector",
     "family_id": 5,
     "age": "adult",
-    "expt": [
+    "exceptions": [
     ]
   }
 }
