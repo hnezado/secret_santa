@@ -1,0 +1,105 @@
+{
+  "alain": {
+    "name": "Alain",
+    "family_id": 1,
+    "age": "adult",
+    "expt": [
+      "fabien"
+    ]
+  },
+  "fatiha": {
+    "name": "Fatiha",
+    "family_id": 1,
+    "age": "adult",
+    "expt": [
+      "charlene"
+    ]
+  },
+  "sylvain": {
+    "name": "Sylvain",
+    "family_id": 2,
+    "age": "adult",
+    "expt": [
+      "anais",
+      "zoe"
+    ]
+  },
+  "lorys": {
+    "name": "Lorys",
+    "family_id": 2,
+    "age": "child",
+    "expt": []
+  },
+  "lysandre": {
+    "name": "Lysandre",
+    "family_id": 2,
+    "age": "child",
+    "expt": []
+  },
+  "fabien": {
+    "name": "Fabien",
+    "family_id": 3,
+    "age": "adult",
+    "expt": [
+      "victor",
+      "margot"
+    ]
+  },
+  "anais": {
+    "name": "Anais",
+    "family_id": 3,
+    "age": "adult",
+    "expt": [
+      "sylvain",
+      "lorys"
+    ]
+  },
+  "zoe": {
+    "name": "Zoe",
+    "family_id": 3,
+    "age": "child",
+    "expt": []
+  },
+  "clea": {
+    "name": "Clea",
+    "family_id": 3,
+    "age": "child",
+    "expt": []
+  },
+  "charlene": {
+    "name": "Charlene",
+    "family_id": 4,
+    "age": "adult",
+    "expt": [
+      "fatiha",
+      "lysandre"
+    ]
+  },
+  "victor": {
+    "name": "Victor",
+    "family_id": 4,
+    "age": "adult",
+    "expt": [
+      "alain",
+      "clea"
+    ]
+  },
+  "raphael": {
+    "name": "Raphael",
+    "family_id": 4,
+    "age": "child",
+    "expt": []
+  },
+  "margot": {
+    "name": "Margot",
+    "family_id": 4,
+    "age": "child",
+    "expt": []
+  },
+  "lucien": {
+    "name": "Lucien",
+    "family_id": 4,
+    "age": "child",
+    "expt": []
+  }
+}
