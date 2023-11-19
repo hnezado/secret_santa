@@ -31,7 +31,7 @@ class Logic:
         unmatched_a = [a_name for a_name, adult in self.adults.items() if adult.name not in ["Alain", "Fatiha"]]
         unmatched_c = list(self.children.keys())
         matches = {}
-        for i in range(len(unmatched_a)):
+        for _ in range(len(unmatched_a)):
             a_name = r.choice(unmatched_a)
             c_name = None
             try:
@@ -55,8 +55,8 @@ class Logic:
 
     @staticmethod
     def merge_matches(m1, m2):
-        merge = {k: [] for k, v in m1.items()}
-        for k, v in merge.items():
+        merge = {k: [] for k, _ in m1.items()}
+        for k, _ in merge.items():
             try:
                 merge[k].append(m1[k])
             except KeyError:

@@ -9,16 +9,16 @@ class Interface:
         self.update_participants = upd_participants
         self.participants = participants
         self.root = root_win
-        self.win_dim = {"w": 800, "h": 600}
+        # self.win_dim = {"w": 800, "h": 600}
         self.win_coords = {"x": 0, "y": 0}
         self.padding = 5
         self.ipadding = 20
-        # self.btn_width = (self.win_dim["w"] - self.padding * 2 - self.ipadding * 2)
         self.btn_width = 36
 
         self.notebook = None
         self.frame_run = None
         self.frame_config = None
+        self.frame_test = None
         self.style = ttk.Style()
         self.style.theme_create(
             "santas",
@@ -76,11 +76,11 @@ class Interface:
                 }
             }
         )
-
         self.style.theme_use("santas")
 
         self.table_run = None
         self.table_config = None
+        self.table_test = None
 
         self.results = {}
         self.res_labels = []
@@ -92,16 +92,14 @@ class Interface:
         self.root.title("Secret Santa")
         self.root.iconbitmap("santa.ico")
         self.root.resizable(False, False)
-        self.win_coords["x"] = int((self.root.winfo_screenwidth() / 2) - (self.win_dim["w"] / 2))
-        self.win_coords["y"] = int((self.root.winfo_screenheight() / 2) - (self.win_dim["h"] / 2))
-        # self.root.geometry(f'{self.win_dim["w"]}x{self.win_dim["h"]}+{self.win_coords["x"]}+{self.win_coords["y"]}')
+        # self.win_coords["x"] = int((self.root.winfo_screenwidth() / 2) - (self.win_dim["w"] / 2))
+        # self.win_coords["y"] = int((self.root.winfo_screenheight() / 2) - (self.win_dim["h"] / 2))
 
     def generate_tabs(self):
-        self.notebook = ttk.Notebook(self.root, width=self.win_dim["w"], height=self.win_dim["h"])
-
+        self.notebook = ttk.Notebook(self.root)#, width=self.win_dim["w"], height=self.win_dim["h"])
         self.create_frame_run()
         self.create_frame_config()
-        # self.notebook.pack(expand=1, fill="both")
+        self.create_frame_test()
         self.notebook.grid(column=0, row=0, sticky="we")
 
     def create_frame_run(self):
@@ -145,6 +143,28 @@ class Interface:
 
         self.update_config()
 
+    def create_frame_test(self):
+        self.frame_test = ttk.Frame(self.notebook, style="TFrame", padding=self.ipadding)
+        self.frame_test.grid(column=0, row=0, sticky="we")
+        self.notebook.add(self.frame_test, text="Test")
+
+        self.table_test = ttk.Treeview(self.frame_test, padding=5, height=18)
+        self.table_test["columns"] = ("family_id", "participant", "age", "except")
+        self.table_test.column("#0", width=0, stretch=tk.NO)
+        self.table_test.tag_configure("even_row", background="#B1D2A3")
+        self.table_test.heading("family_id", text="Family ID", anchor="center")
+        self.table_test.heading("participant", text="Participant", anchor="center")
+        self.table_test.heading("age", text="Age", anchor="center")
+        self.table_test.heading("except", text="Exceptions", anchor="center")
+        self.table_test.grid(column=0, row=0, pady=(20, 0), sticky="nswe")
+
+        upd_btn = ttk.Button(self.frame_test, text="Update", command=self.update_config, style="Update.TButton")
+        upd_btn.grid(column=0, row=1, pady=(10, 0))
+        open_config_btn = ttk.Button(self.frame_test, text="Open configuration file", command=self.open_config, style="OpenConfig.TButton")
+        open_config_btn.grid(column=0, row=2, pady=(20, 0))
+
+        self.update_test()
+
     def run(self):
         self.clear_results()
         self.results = self.run_logic()
@@ -170,6 +190,22 @@ class Interface:
                 row_num += 1
 
     def update_config(self):
+        self.participants = self.update_participants()
+        self.table_config.delete(*self.table_config.get_children())
+
+        row_num = 0
+        for p, member in self.participants.items():
+            try:
+                text = (f'{member.family_id}', f'{p}', f'{member.age}', f'{", ".join(m for m in member.exceptions)}')
+                if row_num % 2 == 0:
+                    self.table_config.insert(parent="", index=str(row_num), values=text, tags=("even_row"))
+                else:
+                    self.table_config.insert(parent="", index=str(row_num), values=text)
+                row_num += 1
+            except TypeError:
+                pass
+
+    def update_test(self):
         self.participants = self.update_participants()
         self.table_config.delete(*self.table_config.get_children())
 
