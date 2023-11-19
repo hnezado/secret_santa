@@ -1,0 +1,84 @@
+{
+    "themename": "santas",
+    "parent": "alt",
+    "settings": {
+        "TNotebook": {
+            "configure": {
+                "borderwidth": 0,
+                "padding": 5,
+                "background": "#558B57"
+            }
+        },
+        "TNotebook.Tab": {
+            "configure": {
+                "width": 40,
+                "padding": [
+                    50,
+                    10
+                ],
+                "font": [
+                    "Calibri",
+                    "12",
+                    "bold"
+                ],
+                "background": "#83AF7E",
+                "foreground": "#E0F7CB",
+                "anchor": "center"
+            },
+            "map": {
+                "background": [
+                    [
+                        "selected",
+                        "#B1D2A3"
+                    ]
+                ],
+                "foreground": [
+                    [
+                        "selected",
+                        "#276733"
+                    ]
+                ]
+            }
+        },
+        "TFrame": {
+            "configure": {
+                "background": "#B1D2A3",
+                "anchor": "center"
+            }
+        },
+        "TButton": {
+            "configure": {
+                "width": 36,
+                "font": [
+                    "Calibri",
+                    32
+                ],
+                "foreground": "#E0F7CB",
+                "background": "#558B57",
+                "anchor": "center"
+            },
+            "map": {
+                "background": [
+                    [
+                        "pressed",
+                        "#5EBC61"
+                    ],
+                    [
+                        "active",
+                        "#4D9B50"
+                    ]
+                ]
+            }
+        },
+        "Treeview": {
+            "configure": {
+                "background": "#E0F7CB"
+            }
+        },
+        "Treeview.Heading": {
+            "configure": {
+                "background": "#83AF7E"
+            }
+        }
+    }
+}

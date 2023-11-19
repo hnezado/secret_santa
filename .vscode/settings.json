@@ -9,6 +9,7 @@
         "pady",
         "pcps",
         "santas",
-        "startfile"
+        "startfile",
+        "themename"
     ]
 }

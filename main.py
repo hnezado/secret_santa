@@ -1,19 +1,8 @@
 import json
-import tkinter as tk
 from tkinter import *
 from interface import Interface
 from config import Member
 from logic import Logic
-
-palette = {
-    1: "#558B57",
-    2: "#83AF7E",
-    3: "#E0F7CB",
-    4: "#B1D2A3",
-    5: "#276733",
-    6: "#5EBC61",
-    7: "#4D9B50"
-}
 
 
 def read_participants():
@@ -25,16 +14,30 @@ def read_participants():
     return pcps_full
 
 
-participants = read_participants()
-adults = {name: member for name, member in participants.items() if member.age == "adult"}
-children = {name: member for name, member in participants.items() if member.age == "child"}
+def run():
+    print("Running!")
+
+
+def clear():
+    print("Clearing!")
+
+
+def main():
+    # participants = read_participants()
+    # adults = {name: member for name, member in participants.items() if member.age == "adult"}
+    # children = {name: member for name, member in participants.items() if member.age == "child"}
+    
+    # lgc = Logic(adults, children)
+    # root = tk.Tk()
+    # itf = Interface(lgc.run, read_participants, participants, root)
+    # root.mainloop()
+    
+    app = Interface(style="./styles/santa_style.json", logic=(run, clear))
+    app.display()
+
 
 if __name__ == "__main__":
-    lgc = Logic(adults, children)
-    root = tk.Tk()
-    
-    itf = Interface(lgc.run, read_participants, participants, root)
-    root.mainloop()
+    main()
 
     # root = PanedWindow()
     # root.mainloop()
