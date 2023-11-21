@@ -11,11 +11,8 @@
         },
         "TNotebook.Tab": {
             "configure": {
-                "width": 40,
-                "padding": [
-                    50,
-                    10
-                ],
+                "width": 0,
+                "padding": [0, 0],
                 "font": [
                     "Calibri",
                     "12",
@@ -48,7 +45,6 @@
         },
         "TButton": {
             "configure": {
-                "width": 36,
                 "font": [
                     "Calibri",
                     32
@@ -77,7 +73,8 @@
         },
         "Treeview.Heading": {
             "configure": {
-                "background": "#83AF7E"
+                "background": "#83AF7E",
+                "width": 10
             }
         }
     }

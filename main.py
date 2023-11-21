@@ -32,7 +32,8 @@ def main():
     # itf = Interface(lgc.run, read_participants, participants, root)
     # root.mainloop()
     
-    app = Interface(style="./styles/santa_style.json", logic=(run, clear))
+    
+    app = Interface(style="./styles/santas.json", logic=(run, clear))
     app.display()
 
 
