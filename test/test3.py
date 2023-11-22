@@ -21,7 +21,7 @@ def display(mode, pack_mode):
         
     if pack_mode == "both":
         notebook.pack(fill=tk.BOTH, expand=True)
-    elif pack_mode == 2:
+    elif pack_mode in ("x", "y"):
         notebook.pack()
 
         

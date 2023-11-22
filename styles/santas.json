@@ -4,23 +4,13 @@
     "settings": {
         "TNotebook": {
             "configure": {
-                "borderwidth": 0,
-                "padding": 5,
                 "background": "#558B57"
             }
         },
         "TNotebook.Tab": {
             "configure": {
-                "width": 0,
-                "padding": [0, 0],
-                "font": [
-                    "Calibri",
-                    "12",
-                    "bold"
-                ],
                 "background": "#83AF7E",
-                "foreground": "#E0F7CB",
-                "anchor": "center"
+                "foreground": "#E0F7CB"
             },
             "map": {
                 "background": [
