@@ -52,6 +52,9 @@ class Interface:
             "treeview": {
                 "height": 256,
                 "borderwidth": 5
+            },
+            "treeview.heading": {
+                "padding": 5
             }
         }
         
@@ -117,23 +120,25 @@ class Interface:
         # Treeview
         self.style.configure(
             "Treeview",
-            foreground="#F56AA4",
+            # background="#E0F7CB",
+            background="#E1E1E1",
+            # fieldbackground="#EEFAE3",
+            fieldbackground="#E1E1E1",
             font=("Calibri", 10),
-            anchor="w"
-            # evenoddrowcolors=[("#E0F7CB", "#B1D2A3")],
-            # relief="groove")
+            # foreground="#173D1E",
+            rowheight=20,
+            # relief="solid" # ??
         )
 
         # Treeview.Heading
         self.style.configure(
             "Treeview.Heading",
+            # background="#83AF7E",
             font=("Calibri", 12, "bold"),
-            borderwidth=1,
-            bordercolor="#ad34c4",
-            relief="solid",
-            highlightbackground="#E03A20",
-            padding=10
-            # relief="groove")
+            relief="solid",# ["solid", "groove"]
+            borderwidth=1, # ??
+            bordercolor="#173D1E", # ??
+            padding=self.fixed["treeview.heading"]["padding"] # ??
         )
         
         # Table headings
@@ -164,36 +169,23 @@ class Interface:
         # Treeview
         self.table_run = ttk.Treeview(self.tab_run, style="Treeview", height=self.fixed["treeview"]["height"])
         self.table_run.configure(columns=self.table_run_cols)
-        self.table_run.tag_configure("even_row", background="#B1D2A3")    
         self.table_run.heading("#0", text="")
         self.table_run.heading("participant", text="Participant", anchor=CENTER)
         self.table_run.heading("assigned", text="Assigned", anchor=CENTER)
 
-        col_width = (self.fixed["win"]["dim"][0] - 2 * (self.fixed["notebook"]["padding"] + self.fixed["frame"]["padding"])) // len(self.table_run_cols)-2
+        col_width = (self.fixed["win"]["dim"][0] - 2 * (self.fixed["notebook"]["padding"] + self.fixed["frame"]["padding"])) // len(self.table_run_cols)-3
         self.table_run.column("#0", stretch=NO, minwidth=0, width=0)    
-        self.table_run.column("participant", stretch=NO, minwidth=10, width=col_width, anchor=CENTER)
-        self.table_run.column("assigned", stretch=NO, minwidth=10, width=col_width, anchor=CENTER)    
-    
-        self.table_run.insert("", "end", text="1", values=("John", 30))
-        self.table_run.insert("", "end", text="2", values=("Alice", 25))
-        self.table_run.insert("", "end", text="3", values=("John", 20))
-        self.table_run.insert("", "end", text="4", values=("Alex", 19))
-        self.table_run.insert("", "end", text="5", values=("Erika", 27))
-        self.table_run.insert("", "end", text="6", values=("Matt", 38))
-        self.table_run.insert("", "end", text="7", values=("Natasha", 24))
-        self.table_run.insert("", "end", text="8", values=("Rudy", 22))
-        self.table_run.insert("", "end", text="9", values=("Helen", 32))
-        self.table_run.insert("", "end", text="10", values=("Gary", 34))
-        self.table_run.insert("", "end", text="11", values=("Mary", 21))
-        self.table_run.insert("", "end", text="12", values=("Jimmy", 40))
-        self.table_run.insert("", "end", text="13", values=("Tracy", 46))
-        self.table_run.insert("", "end", text="14", values=("Ben", 18))
-        self.table_run.insert("", "end", text="15", values=("Anne", 42))
-        self.table_run.insert("", "end", text="16", values=("Phil", 33))
-        self.table_run.insert("", "end", text="17", values=("Andrew", 26))
-        self.table_run.insert("", "end", text="18", values=("Christine", 28))
-        self.table_run.insert("", "end", text="19", values=("Amanda", 21))
-        self.table_run.insert("", "end", text="20", values=("Lucy", 31))
+        self.table_run.column("participant", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
+        self.table_run.column("assigned", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)    
+        
+        ## Tag
+        self.table_run.tag_configure("oddrow", background="#C7DEB1")    
+        
+        data = [("John", 30), ("Alice", 25), ("John", 20), ("Alex", 19), ("Erika", 27), ("Matt", 38), ("Natasha", 24), ("Rudy", 22), ("Helen", 32), ("Gary", 34)]#, ("Mary", 21), ("Jimmy", 40), ("Tracy", 46), ("Ben", 18), ("Anne", 42), ("Phil", 33), ("Andrew", 26), ("Christine", 28), ("Amanda", 21), ("Lucy", 31)]
+
+        for i, v in enumerate(data):
+            tag = "evenrow" if i % 2 == 0 else "oddrow"
+            self.table_run.insert("", "end", values=v, tags=(tag))
 
         self.table_run.pack(fill=BOTH, expand=True)
         
@@ -231,9 +223,12 @@ class Interface:
     
     def display(self) -> None:
         self.root.bind("<Configure>", self.on_resize)
+        self.table_run.bind("<Button-1>", self.disable_resizing)
         self.root.mainloop()
         
     def on_resize(self, _):
         self.dim = {"w": self.root.winfo_width(), "h": self.root.winfo_height()}
         self.pos = {"x": self.root.winfo_x, "y": self.root.winfo_y}
 
+    def disable_resizing(self, _):
+        return "break"

@@ -2,6 +2,12 @@
     "themename": "santas",
     "parent": "alt",
     "settings": {
+        "TFrame": {
+            "configure": {
+                "background": "#B1D2A3",
+                "anchor": "center"
+            }
+        },
         "TNotebook": {
             "configure": {
                 "background": "#558B57"
@@ -25,12 +31,6 @@
                         "#276733"
                     ]
                 ]
-            }
-        },
-        "TFrame": {
-            "configure": {
-                "background": "#B1D2A3",
-                "anchor": "center"
             }
         },
         "TButton": {
@@ -58,13 +58,14 @@
         },
         "Treeview": {
             "configure": {
-                "background": "#E0F7CB"
+                "background": "#E0F7CB",
+                "fieldbackground": "#EEFAE3",
+                "foreground": "#173D1E"
             }
         },
         "Treeview.Heading": {
             "configure": {
-                "background": "#83AF7E",
-                "width": 10
+                "background": "#83AF7E"
             }
         }
     }
