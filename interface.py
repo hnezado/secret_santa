@@ -100,7 +100,8 @@ class Interface:
         # Frame
         self.style.configure(
             "TFrame",
-            padding=self.fixed["frame"]["padding"]
+            padding=self.fixed["frame"]["padding"],
+            anchor=CENTER
         )
         
         # Notebook
@@ -116,6 +117,13 @@ class Interface:
             font=("Calibri", 16, "bold"),
             anchor="center"
         )
+        
+        # Button
+        self.style.configure(
+            "TButton",
+            font=("Calibri", 32),
+            anchor=CENTER
+        )
 
         # Treeview
         self.style.configure(
@@ -123,11 +131,9 @@ class Interface:
             # background="#E0F7CB",
             background="#E1E1E1",
             # fieldbackground="#EEFAE3",
-            fieldbackground="#E1E1E1",
             font=("Calibri", 10),
             # foreground="#173D1E",
             rowheight=20,
-            # relief="solid" # ??
         )
 
         # Treeview.Heading
@@ -140,6 +146,8 @@ class Interface:
             bordercolor="#173D1E", # ??
             padding=self.fixed["treeview.heading"]["padding"] # ??
         )
+        
+        
         
         # Table headings
         # table_headings_config = {
@@ -188,11 +196,6 @@ class Interface:
             self.table_run.insert("", "end", values=v, tags=(tag))
 
         self.table_run.pack(fill=BOTH, expand=True)
-        
-        # # Scrollbar
-        # self.scroll_bar_run = Scrollbar(self.tab_run, orient="vertical")
-        # self.table_run.config(yscrollcommand=self.scroll_bar_run.set)
-        # self.scroll_bar_run.pack(side=RIGHT, fill=Y)
         
     def create_tab_config(self):
         self.tab_config = ttk.Frame(self.notebook, style="TFrame", padding=20)
