@@ -146,15 +146,6 @@ class Interface:
             bordercolor="#173D1E", # ??
             padding=self.fixed["treeview.heading"]["padding"] # ??
         )
-        
-        
-        
-        # Table headings
-        # table_headings_config = {
-        #     # "anchor": "center",
-        #     # "borderwidth": 5,
-        #     # "relief": "groove"
-        # }
     
     def set_tabs(self):
         self.notebook = ttk.Notebook(self.root)

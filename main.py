@@ -23,7 +23,8 @@ def clear():
 
 
 def main():
-    # participants = read_participants()
+    participants = read_participants()
+    print("participants: ", participants)
     # adults = {name: member for name, member in participants.items() if member.age == "adult"}
     # children = {name: member for name, member in participants.items() if member.age == "child"}
     
