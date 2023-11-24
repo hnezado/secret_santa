@@ -1,24 +1,16 @@
 import json
-import datetime as dt
 import logging as log
 from tkinter import *
 from tkinter import ttk
 
-# Logging configuration
-log.basicConfig(
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-    filename=f'./logs/{dt.datetime.now().strftime("%Y-%m-%d")}.log', 
-    level=log.INFO)
 
 class Interface:
-    def __init__(self, style, logic) -> None:
+    def __init__(self, logic, style) -> None:
         # Main window
         self.root = None
+        self.logic = logic
         self.dim = {"w": 0, "h": 0}
         self.pos = {"x": 0, "y": 0}
-        self.run = logic[0]
-        self.clear = logic[1]
         self.style = None
         
         # Components
@@ -46,18 +38,38 @@ class Interface:
             "notebook": {
                 "padding": 10
             },
-            "tab": {
-                "padding": (49,10)
+            "notebook.tab": {
+                "padding": (49, 10),
+                "font": ("Calibri", 16, "bold"),
+                "anchor": CENTER
+            },
+            "button": {
+                "font": ("Calibri", 32),
+                "anchor": CENTER
             },
             "treeview": {
+                # "background": "#E0F7CB",
+                "background": "#E1E1E1",
+                # "fieldbackground": "#EEFAE3",
+                "font": ("Calibri", 10),
+                # "foreground": "#173D1E",
+                "rowheight":20,
                 "height": 256,
                 "borderwidth": 5
             },
             "treeview.heading": {
+                # "background": "#83AF7E",
+                "font": ("Calibri", 12, "bold"),
+                "relief": "solid", # ["solid", "groove"]
+                "borderwidth": 1,
+                "bordercolor": "#173D1E",
                 "padding": 5
             }
         }
-        
+
+        # Data
+        self.table_run_data = {}
+
         # Initialization
         self.set_root()
         self.set_style(style_path=style)
@@ -113,38 +125,37 @@ class Interface:
         # Notebook.Tab
         self.style.configure(
             "TNotebook.Tab", 
-            padding=self.fixed["tab"]["padding"],
-            font=("Calibri", 16, "bold"),
-            anchor="center"
+            padding=self.fixed["notebook.tab"]["padding"],
+            font=self.fixed["notebook.tab"]["font"],
+            anchor=self.fixed["notebook.tab"]["anchor"]
         )
         
         # Button
         self.style.configure(
             "TButton",
-            font=("Calibri", 32),
-            anchor=CENTER
+            font=self.fixed["button"]["font"],
+            anchor=self.fixed["button"]["anchor"]
         )
 
         # Treeview
         self.style.configure(
             "Treeview",
-            # background="#E0F7CB",
-            background="#E1E1E1",
-            # fieldbackground="#EEFAE3",
-            font=("Calibri", 10),
-            # foreground="#173D1E",
-            rowheight=20,
+            background=self.fixed["treeview"]["background"],
+            # fieldbackground=self.fixed["treeview"]["fieldbackground"],
+            font=self.fixed["treeview"]["font"],
+            # foreground=self.fixed["treeview"]["foreground"],
+            rowheight=self.fixed["treeview"]["rowheight"],
         )
 
         # Treeview.Heading
         self.style.configure(
             "Treeview.Heading",
             # background="#83AF7E",
-            font=("Calibri", 12, "bold"),
-            relief="solid",# ["solid", "groove"]
-            borderwidth=1, # ??
-            bordercolor="#173D1E", # ??
-            padding=self.fixed["treeview.heading"]["padding"] # ??
+            font=self.fixed["treeview.heading"]["font"],
+            relief=self.fixed["treeview.heading"]["relief"],
+            borderwidth=self.fixed["treeview.heading"]["borderwidth"],
+            bordercolor=self.fixed["treeview.heading"]["bordercolor"],
+            padding=self.fixed["treeview.heading"]["padding"]
         )
     
     def set_tabs(self):
@@ -171,22 +182,16 @@ class Interface:
         self.table_run.heading("#0", text="")
         self.table_run.heading("participant", text="Participant", anchor=CENTER)
         self.table_run.heading("assigned", text="Assigned", anchor=CENTER)
-
         col_width = (self.fixed["win"]["dim"][0] - 2 * (self.fixed["notebook"]["padding"] + self.fixed["frame"]["padding"])) // len(self.table_run_cols)-3
         self.table_run.column("#0", stretch=NO, minwidth=0, width=0)    
         self.table_run.column("participant", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
         self.table_run.column("assigned", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)    
         
         ## Tag
-        self.table_run.tag_configure("oddrow", background="#C7DEB1")    
-        
-        data = [("John", 30), ("Alice", 25), ("John", 20), ("Alex", 19), ("Erika", 27), ("Matt", 38), ("Natasha", 24), ("Rudy", 22), ("Helen", 32), ("Gary", 34)]#, ("Mary", 21), ("Jimmy", 40), ("Tracy", 46), ("Ben", 18), ("Anne", 42), ("Phil", 33), ("Andrew", 26), ("Christine", 28), ("Amanda", 21), ("Lucy", 31)]
-
-        for i, v in enumerate(data):
-            tag = "evenrow" if i % 2 == 0 else "oddrow"
-            self.table_run.insert("", "end", values=v, tags=(tag))
+        self.table_run.tag_configure("oddrow", background="#C7DEB1")
 
         self.table_run.pack(fill=BOTH, expand=True)
+        self.update_tab_run()
         
     def create_tab_config(self):
         self.tab_config = ttk.Frame(self.notebook, style="TFrame", padding=20)
@@ -214,15 +219,39 @@ class Interface:
         self.tab_pref = ttk.Frame(self.notebook, style="TFrame", padding=20)
         self.tab_pref.pack(fill="both", expand=True)
         self.notebook.add(self.tab_pref, text="PREFERENCES")
+
+    def update_tab_run(self):
+        # data = [("John", 30), ("Alice", 25), ("John", 20), ("Alex", 19), ("Erika", 27), ("Matt", 38), ("Natasha", 24),
+        #         ("Rudy", 22), ("Helen", 32), ("Gary", 34)]
+        #         , ("Mary", 21), ("Jimmy", 40), ("Tracy", 46), ("Ben", 18), ("Anne", 42), ("Phil", 33), ("Andrew", 26),
+        #         ("Christine", 28), ("Amanda", 21), ("Lucy", 31)]
+
+        self.table_run.delete(*self.table_run.get_children())
+
+        for i, (name, assigned) in enumerate(self.table_run_data.items()):
+            tag = "evenrow" if i % 2 == 0 else "oddrow"
+            values = (f'{name.title()}', f'{", ".join([p.name for p in assigned])}')
+            self.table_run.insert("", "end", values=values, tags=tag)
+
+    def run(self):
+        self.table_run_data = self.logic.run()
+        print(self.table_run_data)
+        self.update_tab_run()
+
+    def clear(self):
+        self.table_run_data.clear()
+        self.update_tab_run()
     
-    def display(self) -> None:
-        self.root.bind("<Configure>", self.on_resize)
-        self.table_run.bind("<Button-1>", self.disable_resizing)
-        self.root.mainloop()
-        
     def on_resize(self, _):
         self.dim = {"w": self.root.winfo_width(), "h": self.root.winfo_height()}
         self.pos = {"x": self.root.winfo_x, "y": self.root.winfo_y}
 
-    def disable_resizing(self, _):
+    @staticmethod
+    def disable_resizing(_):
         return "break"
+
+    def display(self) -> None:
+        self.root.bind("<Configure>", self.on_resize)
+        self.table_run.bind("<Button-1>", self.disable_resizing)
+        self.root.mainloop()
+

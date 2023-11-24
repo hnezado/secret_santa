@@ -6,4 +6,4 @@ class Member:
         self.exceptions = exceptions
 
     def __repr__(self):
-        return f'Member {self.name}'
+        return f'Member({self.name})'

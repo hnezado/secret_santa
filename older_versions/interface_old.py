@@ -223,4 +223,4 @@ class Interface:
 
     @staticmethod
     def open_config():
-        os.startfile("config.json")
+        os.startfile("../config.json")
