@@ -76,9 +76,7 @@ class Interface:
         self.set_tabs()
         
     def set_root(self) -> None:
-        """Generates the root window applying its dimensions and position to itself
-        """
-        
+        """Generates the root window applying its dimensions and position to itself"""
         self.root = Tk()
         self.root.title("Secret Santa")
         self.root.iconbitmap("santa.ico")
@@ -96,6 +94,7 @@ class Interface:
         )
     
     def set_style(self, style_path) -> ttk.Style:
+        """Creates a new passed style if not create already"""
         self.style = ttk.Style()
         with open(style_path) as f:
             j = f.read()
@@ -109,6 +108,7 @@ class Interface:
         self.update_style()
         
     def update_style(self):
+        """Updates the style with the un-mutable settings"""
         # Frame
         self.style.configure(
             "TFrame",
@@ -159,6 +159,7 @@ class Interface:
         )
     
     def set_tabs(self):
+        """Set notebook and each of its tab"""
         self.notebook = ttk.Notebook(self.root)
         self.create_tab_run()
         self.create_tab_config()
@@ -166,6 +167,7 @@ class Interface:
         self.notebook.pack(fill=BOTH, expand=True)
     
     def create_tab_run(self):
+        """Creates the RUN tab"""
         # TFrame
         self.tab_run = ttk.Frame(self.notebook, padding=self.fixed["frame"]["padding"])
         self.notebook.add(self.tab_run, text="RUN")
@@ -194,6 +196,7 @@ class Interface:
         self.update_tab_run()
         
     def create_tab_config(self):
+        """Creates the CONFIGURATION tab"""
         self.tab_config = ttk.Frame(self.notebook, style="TFrame", padding=20)
         self.tab_config.pack(fill="both", expand=True)
         self.notebook.add(self.tab_config, text="CONFIGURATION")
@@ -216,11 +219,13 @@ class Interface:
         # self.update_config()
     
     def create_tab_pref(self):
+        """Creates de PREFERENCES tab"""
         self.tab_pref = ttk.Frame(self.notebook, style="TFrame", padding=20)
         self.tab_pref.pack(fill="both", expand=True)
         self.notebook.add(self.tab_pref, text="PREFERENCES")
 
     def update_tab_run(self):
+        """Updates the RUN tab"""
         self.table_run.delete(*self.table_run.get_children())
 
         for i, (name, assigned) in enumerate(self.table_run_data.items()):
@@ -229,24 +234,27 @@ class Interface:
             self.table_run.insert("", "end", values=values, tags=tag)
 
     def run(self):
+        """Retrieves the randomized paired data"""
         self.table_run_data = self.logic.run()
-        print(self.table_run_data)
         self.update_tab_run()
 
     def clear(self):
+        """Clears the retrieved data and the treeview"""
         self.table_run_data.clear()
         self.update_tab_run()
     
     def on_resize(self, _):
+        """Updates the window dimensions and position when resized"""
         self.dim = {"w": self.root.winfo_width(), "h": self.root.winfo_height()}
         self.pos = {"x": self.root.winfo_x, "y": self.root.winfo_y}
 
     @staticmethod
     def disable_resizing(_):
+        """Disables the column resizing"""
         return "break"
 
     def display(self) -> None:
+        """Main interface method"""
         self.root.bind("<Configure>", self.on_resize)
         self.table_run.bind("<Button-1>", self.disable_resizing)
         self.root.mainloop()
-
