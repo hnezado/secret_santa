@@ -221,11 +221,6 @@ class Interface:
         self.notebook.add(self.tab_pref, text="PREFERENCES")
 
     def update_tab_run(self):
-        # data = [("John", 30), ("Alice", 25), ("John", 20), ("Alex", 19), ("Erika", 27), ("Matt", 38), ("Natasha", 24),
-        #         ("Rudy", 22), ("Helen", 32), ("Gary", 34)]
-        #         , ("Mary", 21), ("Jimmy", 40), ("Tracy", 46), ("Ben", 18), ("Anne", 42), ("Phil", 33), ("Andrew", 26),
-        #         ("Christine", 28), ("Amanda", 21), ("Lucy", 31)]
-
         self.table_run.delete(*self.table_run.get_children())
 
         for i, (name, assigned) in enumerate(self.table_run_data.items()):
