@@ -13,7 +13,10 @@ log.basicConfig(
 
 def main():
     lgc = Logic()
-    app = Interface(logic=lgc, style="./styles/santas.json")
+    app = Interface(
+        logic=lgc,
+        style="./styles/santas.json",
+        input_file="./config.json")
     app.display()
 
 

@@ -6,27 +6,29 @@ from config import Member
 
 class Logic:
     def __init__(self):
+        self.participants = None
         self.adults = None
         self.children = None
 
         self.read_participants()
 
     def read_participants(self):
+        """Reads and loads the input file"""
         with open("config.json") as f:
             raw_input = json.load(f)
-        participants = {}
+        self.participants = {}
         for p in raw_input:
-            participants[p] = Member(
+            self.participants[p] = Member(
                 raw_input[p]["name"],
                 raw_input[p]["family_id"],
                 raw_input[p]["age"],
                 raw_input[p]["exceptions"]
             )
-        self.adults = {name: member for name, member in participants.items() if member.age == "adult"}
-        self.children = {name: member for name, member in participants.items() if member.age == "child"}
+        self.adults = {name: member for name, member in self.participants.items() if member.age == "adult"}
+        self.children = {name: member for name, member in self.participants.items() if member.age == "child"}
 
     def match_adults(self):
-        """Matches randomly each adult with another avoiding their exceptions"""
+        """Matches randomly each adult with another adult avoiding their exceptions"""
         unmatched_a = list(self.adults.keys())
         matches = {}
         for a1 in list(self.adults.keys()):
@@ -76,7 +78,7 @@ class Logic:
 
     @staticmethod
     def merge_matches(m1, m2):
-
+        """Merges both matches adults-adults and adults-children"""
         merge = {k: [] for k, _ in m1.items()}
         for k, _ in merge.items():
             try:
@@ -90,6 +92,7 @@ class Logic:
         return merge
 
     def run(self):
+        """Main logic"""
         matches_a = self.match_adults()
         matches_c = self.match_children()
         matches = self.merge_matches(matches_a, matches_c)

@@ -1,3 +1,4 @@
+import os
 import json
 import logging as log
 from tkinter import *
@@ -5,10 +6,11 @@ from tkinter import ttk
 
 
 class Interface:
-    def __init__(self, logic, style) -> None:
+    def __init__(self, logic, style, input_file) -> None:
         # Main window
         self.root = None
         self.logic = logic
+        self.input_file = input_file
         self.dim = {"w": 0, "h": 0}
         self.pos = {"x": 0, "y": 0}
         self.style = None
@@ -19,11 +21,12 @@ class Interface:
         self.tab_config = None
         self.tab_pref = None
         self.table_run = None
+        self.table_config = None
         self.scroll_bar_run = None
         
         # Columns to display in each table
         self.table_run_cols = ("participant", "assigned")
-        self.table_config_cols = ("family_id", "participant", "age", "except")
+        self.table_config_cols = ("family_id", "participant", "age", "exceptions")
         
         # Style fixed settings (since is not modifiable -> hardcoded)
         self.fixed = {
@@ -134,7 +137,7 @@ class Interface:
         self.style.configure(
             "TButton",
             font=self.fixed["button"]["font"],
-            anchor=self.fixed["button"]["anchor"]
+            anchor=self.fixed["button"]["anchor"],
         )
 
         # Treeview
@@ -173,9 +176,9 @@ class Interface:
         self.notebook.add(self.tab_run, text="RUN")
 
         # Buttons
-        btn_roll = ttk.Button(self.tab_run, text="Roll", command=self.run, style="Roll.TButton")
+        btn_roll = ttk.Button(self.tab_run, text="Roll", command=self.run, style="Roll.TButton", takefocus=False)
         btn_roll.pack(fill="x", expand=True, pady=(0, 10))
-        btn_clear = ttk.Button(self.tab_run, text="Clear", command=self.clear, style="Clear.TButton")
+        btn_clear = ttk.Button(self.tab_run, text="Clear", command=self.clear, style="Clear.TButton", takefocus=False)
         btn_clear.pack(fill="x", expand=True, pady=(0, 10))
         
         # Treeview
@@ -197,27 +200,36 @@ class Interface:
         
     def create_tab_config(self):
         """Creates the CONFIGURATION tab"""
-        self.tab_config = ttk.Frame(self.notebook, style="TFrame", padding=20)
+        self.tab_config = ttk.Frame(self.notebook, padding=self.fixed["frame"]["padding"])
         self.tab_config.pack(fill="both", expand=True)
         self.notebook.add(self.tab_config, text="CONFIGURATION")
 
-        # self.table_config = ttk.Treeview(self.tab_config, padding=5, height=18)
-        # self.table_config["columns"] = ("family_id", "participant", "age", "except")
-        # self.table_config.column("#0", width=0, stretch=tk.NO)
-        # self.table_config.tag_configure("even_row", background="#B1D2A3")
-        # self.table_config.heading("family_id", text="Family ID", anchor="center")
-        # self.table_config.heading("participant", text="Participant", anchor="center")
-        # self.table_config.heading("age", text="Age", anchor="center")
-        # self.table_config.heading("except", text="Exceptions", anchor="center")
-        # self.table_config.grid(column=0, row=0, pady=(20, 0), sticky="nswe")
+        upd_btn = ttk.Button(self.tab_config, text="Update", command=self.update_tab_config, style="Update.TButton", takefocus=False)
+        upd_btn.pack(fill="x", expand=True, pady=(0, 10))
+        open_config_btn = ttk.Button(self.tab_config, text="Open configuration file", command=self.open_config_file, style="OpenConfigFile.TButton", takefocus=False)
+        open_config_btn.pack(fill="x", expand=True, pady=(0, 10))
 
-        # upd_btn = ttk.Button(self.tab_config, text="Update", command=self.update_config, style="Update.TButton")
-        # upd_btn.grid(column=0, row=1, pady=(10, 0))
-        # open_config_btn = ttk.Button(self.tab_config, text="Open configuration file", command=self.open_config, style="OpenConfig.TButton")
-        # open_config_btn.grid(column=0, row=2, pady=(20, 0))
+        self.table_config = ttk.Treeview(self.tab_config, style="Treeview", height=self.fixed["treeview"]["height"])
+        self.table_config.configure(columns=self.table_config_cols)
+        self.table_config.heading("#0", text="")
+        self.table_config.heading("family_id", text="Family ID", anchor=CENTER)
+        self.table_config.heading("participant", text="Participant", anchor=CENTER)
+        self.table_config.heading("age", text="Age", anchor=CENTER)
+        self.table_config.heading("exceptions", text="Exceptions", anchor=CENTER)
+        col_width = (self.fixed["win"]["dim"][0] - 2 * (
+                    self.fixed["notebook"]["padding"] + self.fixed["frame"]["padding"])) // len(self.table_config_cols) - 3
+        self.table_config.column("#0", stretch=NO, minwidth=0, width=0)
+        self.table_config.column("family_id", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
+        self.table_config.column("participant", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
+        self.table_config.column("age", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
+        self.table_config.column("exceptions", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
 
-        # self.update_config()
-    
+        ## Tag
+        self.table_config.tag_configure("oddrow", background="#C7DEB1")
+
+        self.table_config.pack(fill=BOTH, expand=True)
+        self.update_tab_config()
+
     def create_tab_pref(self):
         """Creates de PREFERENCES tab"""
         self.tab_pref = ttk.Frame(self.notebook, style="TFrame", padding=20)
@@ -233,6 +245,18 @@ class Interface:
             values = (f'{name.title()}', f'{", ".join([p.name for p in assigned])}')
             self.table_run.insert("", "end", values=values, tags=tag)
 
+    def update_tab_config(self):
+        self.table_config.delete(*self.table_config.get_children())
+        self.logic.read_participants()
+
+        for i, member in enumerate(self.logic.participants.values()):
+            tag = "evenrow" if i % 2 == 0 else "oddrow"
+            values = (f'{member.family_id}',
+                      f'{member.name.title()}',
+                      f'{member.age.title()}',
+                      f'{", ".join([e.title() for e in member.exceptions])}')
+            self.table_config.insert("", "end", values=values, tags=tag)
+
     def run(self):
         """Retrieves the randomized paired data"""
         self.table_run_data = self.logic.run()
@@ -242,6 +266,10 @@ class Interface:
         """Clears the retrieved data and the treeview"""
         self.table_run_data.clear()
         self.update_tab_run()
+
+    def open_config_file(self):
+        """Opens the configuration file to edit it"""
+        os.system("notepad.exe " + self.input_file)
     
     def on_resize(self, _):
         """Updates the window dimensions and position when resized"""
@@ -254,7 +282,8 @@ class Interface:
         return "break"
 
     def display(self) -> None:
-        """Main interface method"""
+        """Main interface"""
         self.root.bind("<Configure>", self.on_resize)
         self.table_run.bind("<Button-1>", self.disable_resizing)
+        self.table_config.bind("<Button-1>", self.disable_resizing)
         self.root.mainloop()
