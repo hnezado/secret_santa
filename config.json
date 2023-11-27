@@ -1,5 +1,6 @@
  {
   "alain": {
+    "enabled": true,
     "name": "Alain",
     "family_id": 1,
     "age": "adult",
@@ -9,6 +10,7 @@
     ]
   },
   "fatiha": {
+    "enabled": true,
     "name": "Fatiha",
     "family_id": 1,
     "age": "adult",
@@ -18,6 +20,7 @@
     ]
   },
   "sylvain": {
+    "enabled": true,
     "name": "Sylvain",
     "family_id": 2,
     "age": "adult",
@@ -27,18 +30,21 @@
     ]
   },
   "lorys": {
+    "enabled": true,
     "name": "Lorys",
     "family_id": 2,
     "age": "child",
     "exceptions": []
   },
   "lysandre": {
+    "enabled": true,
     "name": "Lysandre",
     "family_id": 2,
     "age": "child",
     "exceptions": []
   },
   "fabien": {
+    "enabled": true,
     "name": "Fabien",
     "family_id": 3,
     "age": "adult",
@@ -47,6 +53,7 @@
     ]
   },
   "anais": {
+    "enabled": true,
     "name": "Anais",
     "family_id": 3,
     "age": "adult",
@@ -56,18 +63,21 @@
     ]
   },
   "zoe": {
+    "enabled": true,
     "name": "Zoe",
     "family_id": 3,
     "age": "child",
     "exceptions": []
   },
   "clea": {
+    "enabled": true,
     "name": "Clea",
     "family_id": 3,
     "age": "child",
     "exceptions": []
   },
   "charlene": {
+    "enabled": true,
     "name": "Charlene",
     "family_id": 4,
     "age": "adult",
@@ -77,6 +87,7 @@
     ]
   },
   "victor": {
+    "enabled": true,
     "name": "Victor",
     "family_id": 4,
     "age": "adult",
@@ -86,18 +97,21 @@
     ]
   },
   "margot": {
+    "enabled": true,
     "name": "Margot",
     "family_id": 4,
     "age": "child",
     "exceptions": []
   },
   "lucien": {
+    "enabled": true,
     "name": "Lucien",
     "family_id": 4,
     "age": "child",
     "exceptions": []
   },
   "adeline": {
+    "enabled": true,
     "name": "Adeline",
     "family_id": 5,
     "age": "adult",
@@ -105,6 +119,7 @@
     ]
   },
   "hector": {
+    "enabled": true,
     "name": "Hector",
     "family_id": 5,
     "age": "adult",

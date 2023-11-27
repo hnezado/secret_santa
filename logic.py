@@ -19,6 +19,7 @@ class Logic:
         self.participants = {}
         for p in raw_input:
             self.participants[p] = Member(
+                raw_input[p]["enabled"],
                 raw_input[p]["name"],
                 raw_input[p]["family_id"],
                 raw_input[p]["age"],

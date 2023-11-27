@@ -14,7 +14,7 @@ class Interface:
         self.dim = {"w": 0, "h": 0}
         self.pos = {"x": 0, "y": 0}
         self.style = None
-        
+
         # Components
         self.notebook = None
         self.tab_run = None
@@ -23,11 +23,11 @@ class Interface:
         self.table_run = None
         self.table_config = None
         self.scroll_bar_run = None
-        
+
         # Columns to display in each table
         self.table_run_cols = ("participant", "assigned")
-        self.table_config_cols = ("family_id", "participant", "age", "exceptions")
-        
+        self.table_config_cols = ("enabled", "family_id", "participant", "age", "exceptions")
+
         # Style fixed settings (since is not modifiable -> hardcoded)
         self.fixed = {
             "win": {
@@ -70,21 +70,26 @@ class Interface:
             }
         }
 
+        self.set_root()
+
         # Data
+        self.img = {
+            "checked": PhotoImage(file='./images/checked.png'),
+            "unchecked": PhotoImage(file='./images/unchecked.png')
+        }
         self.table_run_data = {}
 
         # Initialization
-        self.set_root()
         self.set_style(style_path=style)
         self.set_tabs()
-        
+
     def set_root(self) -> None:
         """Generates the root window applying its dimensions and position to itself"""
         self.root = Tk()
         self.root.title("Secret Santa")
         self.root.iconbitmap("santa.ico")
         self.root.minsize(self.fixed["win"]["minsize"][0], self.fixed["win"]["minsize"][1])
-        
+
         # Calculate window position (relatively to its dimensions)
         self.fixed["win"]["pos"] = (
             self.root.winfo_screenwidth() // 2 - (self.fixed["win"]["dim"][0] // 2),
@@ -95,21 +100,21 @@ class Interface:
         self.root.geometry(
             f'{self.fixed["win"]["dim"][0]}x{self.fixed["win"]["dim"][1]}+{self.fixed["win"]["pos"][0]}+{self.fixed["win"]["pos"][1]}'
         )
-    
+
     def set_style(self, style_path) -> ttk.Style:
         """Creates a new passed style if not create already"""
         self.style = ttk.Style()
         with open(style_path) as f:
             j = f.read()
             style_content = json.loads(j)
-        
+
         try:
             self.style.theme_create(**style_content)
         except:
             log.info(f'Theme {style_content["themename"]} already exists')
         self.style.theme_use(style_content["themename"])
         self.update_style()
-        
+
     def update_style(self):
         """Updates the style with the un-mutable settings"""
         # Frame
@@ -118,7 +123,7 @@ class Interface:
             padding=self.fixed["frame"]["padding"],
             anchor=CENTER
         )
-        
+
         # Notebook
         self.style.configure(
             "TNotebook",
@@ -127,12 +132,12 @@ class Interface:
 
         # Notebook.Tab
         self.style.configure(
-            "TNotebook.Tab", 
+            "TNotebook.Tab",
             padding=self.fixed["notebook.tab"]["padding"],
             font=self.fixed["notebook.tab"]["font"],
             anchor=self.fixed["notebook.tab"]["anchor"]
         )
-        
+
         # Button
         self.style.configure(
             "TButton",
@@ -160,7 +165,7 @@ class Interface:
             bordercolor=self.fixed["treeview.heading"]["bordercolor"],
             padding=self.fixed["treeview.heading"]["padding"]
         )
-    
+
     def set_tabs(self):
         """Set notebook and each of its tab"""
         self.notebook = ttk.Notebook(self.root)
@@ -168,7 +173,7 @@ class Interface:
         self.create_tab_config()
         self.create_tab_pref()
         self.notebook.pack(fill=BOTH, expand=True)
-    
+
     def create_tab_run(self):
         """Creates the RUN tab"""
         # TFrame
@@ -180,7 +185,7 @@ class Interface:
         btn_roll.pack(fill="x", expand=True, pady=(0, 10))
         btn_clear = ttk.Button(self.tab_run, text="Clear", command=self.clear, style="Clear.TButton", takefocus=False)
         btn_clear.pack(fill="x", expand=True, pady=(0, 10))
-        
+
         # Treeview
         self.table_run = ttk.Treeview(self.tab_run, style="Treeview", height=self.fixed["treeview"]["height"])
         self.table_run.configure(columns=self.table_run_cols)
@@ -188,16 +193,16 @@ class Interface:
         self.table_run.heading("participant", text="Participant", anchor=CENTER)
         self.table_run.heading("assigned", text="Assigned", anchor=CENTER)
         col_width = (self.fixed["win"]["dim"][0] - 2 * (self.fixed["notebook"]["padding"] + self.fixed["frame"]["padding"])) // len(self.table_run_cols)-3
-        self.table_run.column("#0", stretch=NO, minwidth=0, width=0)    
+        self.table_run.column("#0", stretch=NO, minwidth=0, width=0)
         self.table_run.column("participant", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
-        self.table_run.column("assigned", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)    
-        
+        self.table_run.column("assigned", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
+
         ## Tag
         self.table_run.tag_configure("oddrow", background="#C7DEB1")
 
         self.table_run.pack(fill=BOTH, expand=True)
         self.update_tab_run()
-        
+
     def create_tab_config(self):
         """Creates the CONFIGURATION tab"""
         self.tab_config = ttk.Frame(self.notebook, padding=self.fixed["frame"]["padding"])
@@ -212,6 +217,7 @@ class Interface:
         self.table_config = ttk.Treeview(self.tab_config, style="Treeview", height=self.fixed["treeview"]["height"])
         self.table_config.configure(columns=self.table_config_cols)
         self.table_config.heading("#0", text="")
+        self.table_config.heading("enabled", text="Enabled", anchor=CENTER)
         self.table_config.heading("family_id", text="Family ID", anchor=CENTER)
         self.table_config.heading("participant", text="Participant", anchor=CENTER)
         self.table_config.heading("age", text="Age", anchor=CENTER)
@@ -219,13 +225,19 @@ class Interface:
         col_width = (self.fixed["win"]["dim"][0] - 2 * (
                     self.fixed["notebook"]["padding"] + self.fixed["frame"]["padding"])) // len(self.table_config_cols) - 3
         self.table_config.column("#0", stretch=NO, minwidth=0, width=0)
+        self.table_config.column("enabled", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
         self.table_config.column("family_id", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
         self.table_config.column("participant", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
         self.table_config.column("age", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
         self.table_config.column("exceptions", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
 
-        ## Tag
+        # Checkboxes
+        # self.table_config_checkbox = ttk.Checkbutton(self.tab_config, text="").
+
+        # Tag
         self.table_config.tag_configure("oddrow", background="#C7DEB1")
+        self.table_config.tag_configure("enabled", image=self.img["checked"])
+        self.table_config.tag_configure("disabled", image=self.img["unchecked"])
 
         self.table_config.pack(fill=BOTH, expand=True)
         self.update_tab_config()
@@ -250,12 +262,19 @@ class Interface:
         self.logic.read_participants()
 
         for i, member in enumerate(self.logic.participants.values()):
-            tag = "evenrow" if i % 2 == 0 else "oddrow"
-            values = (f'{member.family_id}',
+            checked = True
+            tags = []
+            tags.append("evenrow") if i % 2 == 0 else tags.append("oddrow")
+            tags.append("enabled") if member.enabled else tags.append("disabled")
+            values = (f'checkbox',
+                      f'{member.family_id}',
                       f'{member.name.title()}',
                       f'{member.age.title()}',
                       f'{", ".join([e.title() for e in member.exceptions])}')
-            self.table_config.insert("", "end", values=values, tags=tag)
+            if "enabled" in tags:
+                self.table_config.insert("", "end", image=self.img["checked"], values=values, tags=tags)
+            else:
+                self.table_config.insert("", "end", image=self.img["unchecked"], value=values, tags=tags)
 
     def run(self):
         """Retrieves the randomized paired data"""
@@ -270,7 +289,7 @@ class Interface:
     def open_config_file(self):
         """Opens the configuration file to edit it"""
         os.system("notepad.exe " + self.input_file)
-    
+
     def on_resize(self, _):
         """Updates the window dimensions and position when resized"""
         self.dim = {"w": self.root.winfo_width(), "h": self.root.winfo_height()}
@@ -281,9 +300,18 @@ class Interface:
         """Disables the column resizing"""
         return "break"
 
+    def on_click_config(self, event):
+        region = self.table_config.identify("region", event.x, event.y)
+        if region == "separator":
+            return self.disable_resizing(event)
+        elif region == "cell":
+            row = int(self.table_config.identify_row(event.y)[1:], 16)
+            col = int(self.table_config.identify_column(event.x)[1:], 16)
+            print((row, col))
+
     def display(self) -> None:
         """Main interface"""
         self.root.bind("<Configure>", self.on_resize)
         self.table_run.bind("<Button-1>", self.disable_resizing)
-        self.table_config.bind("<Button-1>", self.disable_resizing)
+        self.table_config.bind("<Button-1>", self.on_click_config)
         self.root.mainloop()
