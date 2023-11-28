@@ -308,6 +308,7 @@ class Interface:
             row = int(self.table_config.identify_row(event.y)[1:], 16)
             col = int(self.table_config.identify_column(event.x)[1:], 16)
             print((row, col))
+        print("clicked!")
 
     def display(self) -> None:
         """Main interface"""
