@@ -8,11 +8,8 @@ from tkinter import ttk
 class Interface:
     def __init__(self, logic, style, input_file) -> None:
         # Main window
-        self.root = None
         self.logic = logic
         self.input_file = input_file
-        self.dim = {"w": 0, "h": 0}
-        self.pos = {"x": 0, "y": 0}
         self.style = None
 
         # Components
@@ -26,15 +23,27 @@ class Interface:
 
         # Columns to display in each table
         self.table_run_cols = ("participant", "assigned")
-        self.table_config_cols = ("enabled", "family_id", "participant", "age", "exceptions")
+        # self.table_config_cols = ("enabled", "family_id", "participant", "age", "exceptions")
+        self.table_config_cols = ("family_id", "participant", "age", "exceptions")
 
-        # Style fixed settings (since is not modifiable -> hardcoded)
-        self.fixed = {
-            "win": {
-                "minsize": (640, 480),
-                "dim": (800, 600),
-                "pos": (0, 0)
-            },
+        # Root
+        self.root = None
+        self.fixed_win = {
+            "minsize": (640, 480),
+            "dim": (800, 600),
+            "pos": (0, 0)
+        }
+        self.set_root()
+
+        # Data
+        self.img = {
+            "checked": PhotoImage(file='./images/checked.png'),
+            "unchecked": PhotoImage(file='./images/unchecked.png')
+        }
+        self.table_run_data = {}
+
+        # Style
+        self.fixed_style = {
             "frame": {
                 "padding": 10
             },
@@ -66,20 +75,12 @@ class Interface:
                 "relief": "solid", # ["solid", "groove"]
                 "borderwidth": 1,
                 "bordercolor": "#173D1E",
-                "padding": 5
+                "padding": (0, 0)
             }
         }
-
-        self.set_root()
-
-        # Data
-        self.img = {
-            "checked": PhotoImage(file='./images/checked.png'),
-            "unchecked": PhotoImage(file='./images/unchecked.png')
-        }
-        self.table_run_data = {}
-
-        # Initialization
+        self.first_col_width = 16 * 2 + self.img["checked"].width()
+        self.col_width = (self.fixed_win["dim"][0] - 2 * (self.fixed_style["notebook"]["padding"] + self.fixed_style["frame"]["padding"]) - self.first_col_width) // len(self.table_config_cols) - 3
+        
         self.set_style(style_path=style)
         self.set_tabs()
 
@@ -88,17 +89,17 @@ class Interface:
         self.root = Tk()
         self.root.title("Secret Santa")
         self.root.iconbitmap("santa.ico")
-        self.root.minsize(self.fixed["win"]["minsize"][0], self.fixed["win"]["minsize"][1])
+        self.root.minsize(self.fixed_win["minsize"][0], self.fixed_win["minsize"][1])
 
         # Calculate window position (relatively to its dimensions)
-        self.fixed["win"]["pos"] = (
-            self.root.winfo_screenwidth() // 2 - (self.fixed["win"]["dim"][0] // 2),
-            self.root.winfo_screenheight() // 2 - (self.fixed["win"]["dim"][1] // 2),
+        self.fixed_win["pos"] = (
+            self.root.winfo_screenwidth() // 2 - (self.fixed_win["dim"][0] // 2),
+            self.root.winfo_screenheight() // 2 - (self.fixed_win["dim"][1] // 2),
         )
 
         # Apply dimensions and position to the window
         self.root.geometry(
-            f'{self.fixed["win"]["dim"][0]}x{self.fixed["win"]["dim"][1]}+{self.fixed["win"]["pos"][0]}+{self.fixed["win"]["pos"][1]}'
+            f'{self.fixed_win["dim"][0]}x{self.fixed_win["dim"][1]}+{self.fixed_win["pos"][0]}+{self.fixed_win["pos"][1]}'
         )
 
     def set_style(self, style_path) -> ttk.Style:
@@ -120,50 +121,50 @@ class Interface:
         # Frame
         self.style.configure(
             "TFrame",
-            padding=self.fixed["frame"]["padding"],
+            padding=self.fixed_style["frame"]["padding"],
             anchor=CENTER
         )
 
         # Notebook
         self.style.configure(
             "TNotebook",
-            padding=self.fixed["notebook"]["padding"]
+            padding=self.fixed_style["notebook"]["padding"]
         )
 
         # Notebook.Tab
         self.style.configure(
             "TNotebook.Tab",
-            padding=self.fixed["notebook.tab"]["padding"],
-            font=self.fixed["notebook.tab"]["font"],
-            anchor=self.fixed["notebook.tab"]["anchor"]
+            padding=self.fixed_style["notebook.tab"]["padding"],
+            font=self.fixed_style["notebook.tab"]["font"],
+            anchor=self.fixed_style["notebook.tab"]["anchor"]
         )
 
         # Button
         self.style.configure(
             "TButton",
-            font=self.fixed["button"]["font"],
-            anchor=self.fixed["button"]["anchor"],
+            font=self.fixed_style["button"]["font"],
+            anchor=self.fixed_style["button"]["anchor"],
         )
 
         # Treeview
         self.style.configure(
             "Treeview",
-            background=self.fixed["treeview"]["background"],
-            # fieldbackground=self.fixed["treeview"]["fieldbackground"],
-            font=self.fixed["treeview"]["font"],
-            # foreground=self.fixed["treeview"]["foreground"],
-            rowheight=self.fixed["treeview"]["rowheight"],
+            background=self.fixed_style["treeview"]["background"],
+            # fieldbackground=self.fixed_style["treeview"]["fieldbackground"],
+            font=self.fixed_style["treeview"]["font"],
+            # foreground=self.fixed_style["treeview"]["foreground"],
+            rowheight=self.fixed_style["treeview"]["rowheight"],
         )
 
         # Treeview.Heading
         self.style.configure(
             "Treeview.Heading",
             # background="#83AF7E",
-            font=self.fixed["treeview.heading"]["font"],
-            relief=self.fixed["treeview.heading"]["relief"],
-            borderwidth=self.fixed["treeview.heading"]["borderwidth"],
-            bordercolor=self.fixed["treeview.heading"]["bordercolor"],
-            padding=self.fixed["treeview.heading"]["padding"]
+            font=self.fixed_style["treeview.heading"]["font"],
+            relief=self.fixed_style["treeview.heading"]["relief"],
+            borderwidth=self.fixed_style["treeview.heading"]["borderwidth"],
+            bordercolor=self.fixed_style["treeview.heading"]["bordercolor"],
+            padding=self.fixed_style["treeview.heading"]["padding"]
         )
 
     def set_tabs(self):
@@ -177,7 +178,7 @@ class Interface:
     def create_tab_run(self):
         """Creates the RUN tab"""
         # TFrame
-        self.tab_run = ttk.Frame(self.notebook, padding=self.fixed["frame"]["padding"])
+        self.tab_run = ttk.Frame(self.notebook, padding=self.fixed_style["frame"]["padding"])
         self.notebook.add(self.tab_run, text="RUN")
 
         # Buttons
@@ -187,12 +188,12 @@ class Interface:
         btn_clear.pack(fill="x", expand=True, pady=(0, 10))
 
         # Treeview
-        self.table_run = ttk.Treeview(self.tab_run, style="Treeview", height=self.fixed["treeview"]["height"])
+        self.table_run = ttk.Treeview(self.tab_run, style="Treeview", height=self.fixed_style["treeview"]["height"])
         self.table_run.configure(columns=self.table_run_cols)
         self.table_run.heading("#0", text="")
         self.table_run.heading("participant", text="Participant", anchor=CENTER)
         self.table_run.heading("assigned", text="Assigned", anchor=CENTER)
-        col_width = (self.fixed["win"]["dim"][0] - 2 * (self.fixed["notebook"]["padding"] + self.fixed["frame"]["padding"])) // len(self.table_run_cols)-3
+        col_width = (self.fixed_win["dim"][0] - 2 * (self.fixed_style["notebook"]["padding"] + self.fixed_style["frame"]["padding"])) // len(self.table_run_cols)-3
         self.table_run.column("#0", stretch=NO, minwidth=0, width=0)
         self.table_run.column("participant", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
         self.table_run.column("assigned", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
@@ -205,36 +206,36 @@ class Interface:
 
     def create_tab_config(self):
         """Creates the CONFIGURATION tab"""
-        self.tab_config = ttk.Frame(self.notebook, padding=self.fixed["frame"]["padding"])
+        # Notebook
+        self.tab_config = ttk.Frame(self.notebook, padding=self.fixed_style["frame"]["padding"])
         self.tab_config.pack(fill="both", expand=True)
         self.notebook.add(self.tab_config, text="CONFIGURATION")
 
+        # Buttons
         upd_btn = ttk.Button(self.tab_config, text="Update", command=self.update_tab_config, style="Update.TButton", takefocus=False)
         upd_btn.pack(fill="x", expand=True, pady=(0, 10))
         open_config_btn = ttk.Button(self.tab_config, text="Open configuration file", command=self.open_config_file, style="OpenConfigFile.TButton", takefocus=False)
         open_config_btn.pack(fill="x", expand=True, pady=(0, 10))
 
-        self.table_config = ttk.Treeview(self.tab_config, style="Treeview", height=self.fixed["treeview"]["height"])
+        # Treeview
+        self.table_config = ttk.Treeview(self.tab_config, style="Treeview", height=self.fixed_style["treeview"]["height"])
         self.table_config.configure(columns=self.table_config_cols)
-        self.table_config.heading("#0", text="")
-        self.table_config.heading("enabled", text="Enabled", anchor=CENTER)
+
+        ## Headings
+        self.table_config.heading("#0", text="Status", anchor=CENTER)
         self.table_config.heading("family_id", text="Family ID", anchor=CENTER)
         self.table_config.heading("participant", text="Participant", anchor=CENTER)
         self.table_config.heading("age", text="Age", anchor=CENTER)
         self.table_config.heading("exceptions", text="Exceptions", anchor=CENTER)
-        col_width = (self.fixed["win"]["dim"][0] - 2 * (
-                    self.fixed["notebook"]["padding"] + self.fixed["frame"]["padding"])) // len(self.table_config_cols) - 3
-        self.table_config.column("#0", stretch=NO, minwidth=0, width=0)
-        self.table_config.column("enabled", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
-        self.table_config.column("family_id", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
-        self.table_config.column("participant", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
-        self.table_config.column("age", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
-        self.table_config.column("exceptions", stretch=YES, minwidth=10, width=col_width, anchor=CENTER)
 
-        # Checkboxes
-        # self.table_config_checkbox = ttk.Checkbutton(self.tab_config, text="").
-
-        # Tag
+        ## Columns
+        self.table_config.column("#0", stretch=NO, minwidth=self.first_col_width, width=self.first_col_width)
+        self.table_config.column("family_id", stretch=YES, minwidth=10, width=self.col_width, anchor=CENTER)
+        self.table_config.column("participant", stretch=YES, minwidth=10, width=self.col_width, anchor=CENTER)
+        self.table_config.column("age", stretch=YES, minwidth=10, width=self.col_width, anchor=CENTER)
+        self.table_config.column("exceptions", stretch=YES, minwidth=10, width=self.col_width, anchor=CENTER)
+        
+        ## Tag
         self.table_config.tag_configure("oddrow", background="#C7DEB1")
         self.table_config.tag_configure("enabled", image=self.img["checked"])
         self.table_config.tag_configure("disabled", image=self.img["unchecked"])
@@ -260,21 +261,20 @@ class Interface:
     def update_tab_config(self):
         self.table_config.delete(*self.table_config.get_children())
         self.logic.read_participants()
-
         for i, member in enumerate(self.logic.participants.values()):
-            checked = True
             tags = []
             tags.append("evenrow") if i % 2 == 0 else tags.append("oddrow")
             tags.append("enabled") if member.enabled else tags.append("disabled")
-            values = (f'checkbox',
-                      f'{member.family_id}',
+            # tags = "evenrow" if i % 2 == 0 else "oddrow"
+            img = self.img["checked"] if member.enabled else self.img["unchecked"]
+            values = (f'{member.family_id}',
                       f'{member.name.title()}',
                       f'{member.age.title()}',
                       f'{", ".join([e.title() for e in member.exceptions])}')
             if "enabled" in tags:
-                self.table_config.insert("", "end", image=self.img["checked"], values=values, tags=tags)
+                self.table_config.insert("", "end", image=img, values=values, tags=tags)
             else:
-                self.table_config.insert("", "end", image=self.img["unchecked"], value=values, tags=tags)
+                self.table_config.insert("", "end", image=img, values=values, tags=tags)
 
     def run(self):
         """Retrieves the randomized paired data"""
@@ -290,11 +290,6 @@ class Interface:
         """Opens the configuration file to edit it"""
         os.system("notepad.exe " + self.input_file)
 
-    def on_resize(self, _):
-        """Updates the window dimensions and position when resized"""
-        self.dim = {"w": self.root.winfo_width(), "h": self.root.winfo_height()}
-        self.pos = {"x": self.root.winfo_x, "y": self.root.winfo_y}
-
     @staticmethod
     def disable_resizing(_):
         """Disables the column resizing"""
@@ -304,15 +299,19 @@ class Interface:
         region = self.table_config.identify("region", event.x, event.y)
         if region == "separator":
             return self.disable_resizing(event)
-        elif region == "cell":
-            row = int(self.table_config.identify_row(event.y)[1:], 16)
-            col = int(self.table_config.identify_column(event.x)[1:], 16)
+        elif region == "tree" or region == "cell":
+            try:
+                row = int(self.table_config.identify_row(event.y)[1:], 16)
+                col = int(self.table_config.identify_column(event.x)[1:], 16)+1
+            except:
+                log.error("Cell coordinates cannot be calculated")
             print((row, col))
-        print("clicked!")
+            if col == 1:
+                self.swap_check(row)
 
     def display(self) -> None:
         """Main interface"""
-        self.root.bind("<Configure>", self.on_resize)
+        # self.root.bind("<Configure>", self.on_resize)
         self.table_run.bind("<Button-1>", self.disable_resizing)
         self.table_config.bind("<Button-1>", self.on_click_config)
         self.root.mainloop()
