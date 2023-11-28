@@ -1,35 +1,58 @@
+# ONLY edit this file to implement new logic or change the existing one
+
 import json
 import logging as log
 import random as r
+from collections import OrderedDict
 from config import Member
 
 
 class Logic:
     def __init__(self):
+        self.participants_raw = None
+        self.participants_names = None
         self.participants = None
         self.adults = None
         self.children = None
 
         self.read_participants()
+        self.parse_participants()
 
     def read_participants(self):
         """Reads and loads the input file"""
         with open("config.json") as f:
-            raw_input = json.load(f)
-        self.participants = {}
-        for p in raw_input:
-            self.participants[p] = Member(
-                raw_input[p]["enabled"],
-                raw_input[p]["name"],
-                raw_input[p]["family_id"],
-                raw_input[p]["age"],
-                raw_input[p]["exceptions"]
+            self.participants_raw = json.load(f, object_pairs_hook=OrderedDict)
+
+    def parse_participants(self):
+        """Parses the raw input into a dictionary with Member() objects"""
+        self.participants = OrderedDict()
+        for k in self.participants_raw:
+            self.participants[k] = Member(
+                self.participants_raw[k]["enabled"],
+                self.participants_raw[k]["name"],
+                self.participants_raw[k]["family_id"],
+                self.participants_raw[k]["age"],
+                self.participants_raw[k]["exceptions"]
             )
-        self.adults = {name: member for name, member in self.participants.items() if member.age == "adult"}
-        self.children = {name: member for name, member in self.participants.items() if member.age == "child"}
+        self.adults = {name: member for name, member in self.participants.items()
+            if member.age == "adult" and member.enabled}
+        self.children = {name: member for name, member in self.participants.items() 
+            if member.age == "child" and member.enabled}
+
+    def update_config_file(self):
+        """Updates the json file"""
+        for k, member in self.participants.items():
+            attrs = list(member.__dict__.keys())
+            for attr in attrs:
+                self.participants_raw[k][attr] = eval(f'member.{attr}')
+
+        output = json.dumps(self.participants_raw, indent=2)
+
+        with open("config.json", "w") as f:
+            f.write(output)
 
     def match_adults(self):
-        """Matches randomly each adult with another adult avoiding their exceptions"""
+        """Matches randomly each adult with another adult avoiding exceptions (adult-adult)"""
         unmatched_a = list(self.adults.keys())
         matches = {}
         for a1 in list(self.adults.keys()):
@@ -50,9 +73,12 @@ class Logic:
             return matches
 
     def match_children(self):
-        """Matches randomly each child with an adult"""
-        # unmatched_a = list(self.adults.keys())
+        """Matches randomly each child with an adult (adult-child(ren))"""
+        
+        # Exception ("Alain" & "Fatiha" no related to any children)
         unmatched_a = [a_name for a_name, adult in self.adults.items() if adult.name not in ["Alain", "Fatiha"]]
+        
+        # unmatched_a = [a_name for a_name, adult in self.adults.items()]
         unmatched_c = list(self.children.keys())
         matches = {}
         for _ in range(len(unmatched_a)):
@@ -72,9 +98,9 @@ class Logic:
             return self.match_children()
         else:
             if unmatched_a:
-                log.info(f'Unmatched adults: {unmatched_a}')
-            elif unmatched_a:
-                log.info(f'Unmatched children: {unmatched_c}')
+                log.warning(f'Unmatched adults: {unmatched_a}')
+            elif unmatched_c:
+                log.warning(f'Unmatched children: {unmatched_c}')
             return matches
 
     @staticmethod

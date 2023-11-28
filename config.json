@@ -1,4 +1,4 @@
- {
+{
   "alain": {
     "enabled": false,
     "name": "Alain",
@@ -10,7 +10,7 @@
     ]
   },
   "fatiha": {
-    "enabled": true,
+    "enabled": false,
     "name": "Fatiha",
     "family_id": 1,
     "age": "adult",
@@ -30,7 +30,7 @@
     ]
   },
   "lorys": {
-    "enabled": false,
+    "enabled": true,
     "name": "Lorys",
     "family_id": 2,
     "age": "child",
@@ -53,7 +53,7 @@
     ]
   },
   "anais": {
-    "enabled": false,
+    "enabled": true,
     "name": "Anais",
     "family_id": 3,
     "age": "adult",
@@ -97,7 +97,7 @@
     ]
   },
   "margot": {
-    "enabled": false,
+    "enabled": true,
     "name": "Margot",
     "family_id": 4,
     "age": "child",
@@ -111,19 +111,17 @@
     "exceptions": []
   },
   "adeline": {
-    "enabled": false,
+    "enabled": true,
     "name": "Adeline",
     "family_id": 5,
     "age": "adult",
-    "exceptions": [
-    ]
+    "exceptions": []
   },
   "hector": {
-    "enabled": false,
+    "enabled": true,
     "name": "Hector",
     "family_id": 5,
     "age": "adult",
-    "exceptions": [
-    ]
+    "exceptions": []
   }
 }
