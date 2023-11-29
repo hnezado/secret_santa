@@ -1,0 +1,71 @@
+{
+    "en": {
+        "run": "RUN",
+        "config": "CONFIGURATION",
+        "pref": "PREFERENCES",
+        "but": {
+            "roll": "Roll",
+            "clear": "Clear",
+            "open_config_file": "Open configuration file",
+            "update_config_table": "Update table from file",
+            "future_impl": "Customizable\nfuture implementations"
+        },
+        "tab_run_table_headings": [
+            "Participant",
+            "Assigned"
+        ],
+        "tab_config_table_headings": [
+            "Status",
+            "Family ID",
+            "Participant",
+            "Age",
+            "Exceptions"
+        ]
+    },
+    "es": {
+        "run": "EJECUTAR",
+        "config": "CONFIGURACIÓN",
+        "pref": "PREFERENCIAS",
+        "but": {
+            "roll": "Combinar",
+            "clear": "Limpiar",
+            "open_config_file": "Abrir archivo de configuración",
+            "update_config_table": "Actualizar tabla desde archivo",
+            "future_impl": "Implementaciones futuras\npersonalizables"
+        },
+        "tab_run_table_headings": [
+            "Participante",
+            "Asignación"
+        ],
+        "tab_config_table_headings": [
+            "Estado",
+            "Identificador de familia",
+            "Participante",
+            "Edad",
+            "Excepciones"
+        ]
+    },
+    "fr": {
+        "run": "EXÉCUTER",
+        "config": "PARAMÈTRE",
+        "pref": "PRÉFÉRENCES",
+        "but": {
+            "roll": "Combiner",
+            "clear": "Clair",
+            "open_config_file": "Ouvrir fichier de configuration",
+            "update_config_table": "Mettre à jour la table à partir du fichier",
+            "future_impl": "Implémentations futures\npersonnalisables"
+        },
+        "tab_run_table_headings": [
+            "Participant(e)",
+            "Assignement"
+        ],
+        "tab_config_table_headings": [
+            "Status",
+            "Identifiant de famille",
+            "Participant(e)",
+            "Âge",
+            "Exceptions"
+        ]
+    }
+}
