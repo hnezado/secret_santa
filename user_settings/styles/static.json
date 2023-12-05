@@ -1,0 +1,75 @@
+{
+    "themename": "secret_santa",
+    "parent": "alt",
+    "settings": {
+        "TNotebook": {
+            "configure": {
+                "padding": [5, 5, 5, 5]
+            }
+        },
+        "TNotebook.Tab": {
+            "configure": {
+                "padding": [49, 10, 49, 10],
+                "font": ["Calibri", 16, "bold"],
+                "anchor": "center"
+            }
+        },
+        "TFrame": {
+            "configure": {
+                "padding": [5],
+                "anchor": "center"
+            }
+        },
+        "Pref.TFrame": {
+            "configure": {
+                "padding": [5]
+            }
+        },
+        "Lang.Pref.TFrame": {
+            "configure": {
+                "padding": [5],
+                "bordercolor": "red",
+                "borderwidth": 5
+            }
+        },
+        "TLabel": {
+            "configure": {
+                "anchor": "center",
+                "font": ["Calibri", 20, "bold"]
+            }
+        },
+        "Lang.Pref.TLabel": {
+            "configure": {
+                "padding": [200, 200]
+            }
+        },
+        "TButton": {
+            "configure": {
+                "font": ["Calibri", 32],
+                "anchor": "center",
+                "padding": [0, 0, 0, 0]
+            }
+        },
+        "Lang.Button": {
+            "configure": {
+                "font": ["Calibri", 16]
+            }
+        },
+        "Treeview": {
+            "configure": {
+                "font": ["Calibri", 10],
+                "rowheight":20,
+                "height": 256,
+                "borderwidth": 5
+            }
+        },
+        "Treeview.Heading": {
+            "configure": {
+                "font": ["Calibri", 12, "bold"],
+                "relief": "solid",
+                "borderwidth": 1,
+                "padding": [0, 0, 0, 0]
+            }
+        }
+    }
+}

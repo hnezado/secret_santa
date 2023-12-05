@@ -3,7 +3,10 @@
         "run": "RUN",
         "config": "CONFIGURATION",
         "pref": "PREFERENCES",
-        "but": {
+        "label": {
+            "lang": "Language"
+        },
+        "btn": {
             "roll": "Roll",
             "clear": "Clear",
             "open_config_file": "Open configuration file",
@@ -26,7 +29,10 @@
         "run": "EJECUTAR",
         "config": "CONFIGURACIÓN",
         "pref": "PREFERENCIAS",
-        "but": {
+        "label": {
+            "lang": "Idioma"
+        },
+        "btn": {
             "roll": "Combinar",
             "clear": "Limpiar",
             "open_config_file": "Abrir archivo de configuración",
@@ -49,7 +55,10 @@
         "run": "EXÉCUTER",
         "config": "PARAMÈTRE",
         "pref": "PRÉFÉRENCES",
-        "but": {
+        "label": {
+            "lang": "Langue"
+        },
+        "btn": {
             "roll": "Combiner",
             "clear": "Clair",
             "open_config_file": "Ouvrir fichier de configuration",
