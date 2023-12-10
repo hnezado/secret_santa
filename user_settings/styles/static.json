@@ -20,16 +20,25 @@
                 "anchor": "center"
             }
         },
+        "Run.TFrame": {
+            "configure": {
+            }
+        },
+        "Config.TFrame": {
+            "configure": {
+            }
+        },
         "Pref.TFrame": {
             "configure": {
-                "padding": [5]
+            }
+        },
+        "Act.Run.TFrame": {
+            "configure": {
             }
         },
         "Lang.Pref.TFrame": {
             "configure": {
-                "padding": [5],
-                "bordercolor": "red",
-                "borderwidth": 5
+                "padding": [0]
             }
         },
         "TLabel": {
@@ -40,7 +49,7 @@
         },
         "Lang.Pref.TLabel": {
             "configure": {
-                "padding": [200, 200]
+                "padding": [0, 0]
             }
         },
         "TButton": {
@@ -50,9 +59,10 @@
                 "padding": [0, 0, 0, 0]
             }
         },
-        "Lang.Button": {
+        "Lang.TButton": {
             "configure": {
-                "font": ["Calibri", 16]
+                "font": ["Calibri", 16],
+                "padding": [50, 5]
             }
         },
         "Treeview": {

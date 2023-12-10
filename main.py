@@ -10,6 +10,7 @@ log.basicConfig(
     filename=f'./logs/{dt.datetime.now().strftime("%Y-%m-%d")}.log',
     level=log.INFO)
 
+
 def main():
     lgc = Logic()
     app = Interface(

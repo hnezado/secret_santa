@@ -11,7 +11,10 @@
             "clear": "Clear",
             "open_config_file": "Open configuration file",
             "update_config_table": "Update table from file",
-            "future_impl": "Customizable\nfuture implementations"
+            "future_impl": "Customizable\nfuture implementations",
+            "lang_en": "English",
+            "lang_es": "Spanish",
+            "lang_fr": "French"
         },
         "tab_run_table_headings": [
             "Participant",
@@ -37,7 +40,10 @@
             "clear": "Limpiar",
             "open_config_file": "Abrir archivo de configuración",
             "update_config_table": "Actualizar tabla desde archivo",
-            "future_impl": "Implementaciones futuras\npersonalizables"
+            "future_impl": "Implementaciones futuras\npersonalizables",
+            "lang_en": "Inglés",
+            "lang_es": "Español",
+            "lang_fr": "Francés"
         },
         "tab_run_table_headings": [
             "Participante",
@@ -63,7 +69,10 @@
             "clear": "Clair",
             "open_config_file": "Ouvrir fichier de configuration",
             "update_config_table": "Mettre à jour la table à partir du fichier",
-            "future_impl": "Implémentations futures\npersonnalisables"
+            "future_impl": "Implémentations futures\npersonnalisables",
+            "lang_en": "Anglais",
+            "lang_es": "Espagnol",
+            "lang_fr": "Français"
         },
         "tab_run_table_headings": [
             "Participant(e)",
