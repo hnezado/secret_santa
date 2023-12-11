@@ -16,7 +16,7 @@
         },
         "TFrame": {
             "configure": {
-                "padding": [5],
+                "padding": [5, 5, 5, 5],
                 "anchor": "center"
             }
         },
@@ -38,7 +38,7 @@
         },
         "Lang.Pref.TFrame": {
             "configure": {
-                "padding": [0]
+                "padding": [0, 0, 0, 0]
             }
         },
         "TLabel": {
@@ -49,7 +49,7 @@
         },
         "Lang.Pref.TLabel": {
             "configure": {
-                "padding": [0, 0]
+                "padding": [0, 0, 0, 0]
             }
         },
         "TButton": {
