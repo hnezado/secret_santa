@@ -1,28 +1,24 @@
-import tkinter as tk
-from tkinter import ttk
-from tkinter.messagebox import showinfo
-
-
-class App(tk.Tk):
-  def __init__(self):
-    super().__init__()
-
-    # configure the root window
-    self.title('My Awesome App')
-    self.geometry('300x50')
-
-    # label
-    self.label = ttk.Label(self, text='Hello, Tkinter!')
-    self.label.pack()
-
-    # button
-    self.button = ttk.Button(self, text='Click Me')
-    self.button['command'] = self.button_clicked
-    self.button.pack()
-
-  def button_clicked(self):
-    showinfo(title='Information', message='Hello, Tkinter!')
-
-if __name__ == "__main__":
-  app = App()
-  app.mainloop()
+# importing only those functions 
+# which are needed 
+from tkinter import * 
+from tkinter.ttk import *
+  
+# creating tkinter window 
+root = Tk() 
+  
+# Adding widgets to the root window 
+Label(root, text = 'GeeksforGeeks', font =( 
+  'Verdana', 15)).pack(side = TOP, pady = 10) 
+  
+# Creating a photoimage object to use image 
+photo = PhotoImage(file="./test/en.png") 
+  
+# here, image option is used to 
+# set image on button 
+Button(
+  root, text = 'Click Me !',
+  image = photo,
+  compound=LEFT
+).pack(side = TOP) 
+  
+mainloop() 

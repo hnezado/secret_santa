@@ -1,7 +1,7 @@
 palette = {
     1: "#EEFAE3", # fieldbackground (treeview)
     2: "#E0F7CB", # background (notebook/treeview) / foreground (button)
-    3: "#C7DEB1", # background (evenrow)
+    3: "#C7DEB1", # background (evenrow) / background (pref-frames)
     3: "#B1D2A3", # background (frame) / background (tab-map)
     4: "#83AF7E", # background (tab) / background (heading)
     5: "#5EBC61", # background (button-map-pressed)

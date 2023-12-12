@@ -61,8 +61,14 @@
         },
         "Lang.TButton": {
             "configure": {
-                "font": ["Calibri", 16],
-                "padding": [50, 5]
+                "font": ["Calibri", 10, "bold"],
+                "padding": [50, 5],
+                "width": 8
+            }
+        },
+        "Future.TButton": {
+            "configure": {
+                "width": 20
             }
         },
         "Treeview": {
