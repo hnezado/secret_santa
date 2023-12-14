@@ -1,90 +1,112 @@
 {
-    "themename": "secret_santa",
-    "parent": "alt",
-    "settings": {
-        "TNotebook": {
-            "configure": {
-                "padding": [5, 5, 5, 5]
-            }
-        },
-        "TNotebook.Tab": {
-            "configure": {
-                "padding": [49, 10, 49, 10],
-                "font": ["Calibri", 16, "bold"],
-                "anchor": "center"
-            }
-        },
-        "TFrame": {
-            "configure": {
-                "padding": [5, 5, 5, 5],
-                "anchor": "center"
-            }
-        },
-        "Run.TFrame": {
-            "configure": {
-            }
-        },
-        "Config.TFrame": {
-            "configure": {
-            }
-        },
-        "Pref.TFrame": {
-            "configure": {
-            }
-        },
-        "Act.Run.TFrame": {
-            "configure": {
-            }
-        },
-        "Lang.Pref.TFrame": {
-            "configure": {
-                "padding": [0, 0, 0, 0]
-            }
-        },
-        "TLabel": {
-            "configure": {
-                "anchor": "center",
-                "font": ["Calibri", 20, "bold"]
-            }
-        },
-        "Lang.Pref.TLabel": {
-            "configure": {
-                "padding": [0, 0, 0, 0]
-            }
-        },
-        "TButton": {
-            "configure": {
-                "font": ["Calibri", 32],
-                "anchor": "center",
-                "padding": [0, 0, 0, 0]
-            }
-        },
-        "Lang.TButton": {
-            "configure": {
-                "font": ["Calibri", 10, "bold"],
-                "padding": [50, 5],
-                "width": 8
-            }
-        },
-        "Future.TButton": {
-            "configure": {
-                "width": 20
-            }
-        },
-        "Treeview": {
-            "configure": {
-                "font": ["Calibri", 10],
-                "rowheight":20,
-                "height": 256,
-                "borderwidth": 5
-            }
-        },
-        "Treeview.Heading": {
-            "configure": {
-                "font": ["Calibri", 12, "bold"],
-                "relief": "solid",
-                "borderwidth": 1,
-                "padding": [0, 0, 0, 0]
+    "grid": {
+        "padding": {
+            "tab_run": [0, 0],
+            "frame_run_act": [10, [10, 0]],
+            "btn_run_roll": [0, 0],
+            "btn_run_clear": [0, [5, 0]],
+            "table_run": [10, 10],
+
+            "tab_conf": [0, 0],
+            "frame_conf_act": [10, [10, 0]],
+            "btn_conf_open_file": [0, 0],
+            "btn_conf_update": [0, [5, 0]],
+            "table_conf": [10, 10],
+
+            "tab_pref": [0, 0],
+            "frame_pref_lang": [5, 5],
+            "label_pref_lang": [0, 0],
+            "btn_pref_lang_en": [2, 0],
+            "btn_pref_lang_es": [2, 0],
+            "btn_pref_lang_fr": [2, 0],
+            "btn_pref_future": [0, 0]
+        }
+    },
+    "style": {
+        "themename": "secret_santa",
+        "parent": "alt",
+        "settings": {
+            "TNotebook": {
+                "configure": {
+                    "padding": [5, 5, 5, 5]
+                }
+            },
+            "TNotebook.Tab": {
+                "configure": {
+                    "padding": [49, 10, 49, 10],
+                    "font": ["Calibri", 13, "bold"],
+                    "anchor": "center"
+                }
+            },
+            "TFrame": {
+                "configure": {
+                    "padding": [5, 5, 5, 5],
+                    "anchor": "center"
+                }
+            },
+            "TLabel": {
+                "configure": {
+                    "anchor": "center",
+                    "font": ["Calibri", 20, "bold"]
+                }
+            },
+            "TButton": {
+                "configure": {
+                    "font": ["Calibri", 32],
+                    "anchor": "center",
+                    "padding": [0, 0, 0, 0]
+                }
+            },
+            "Treeview": {
+                "configure": {
+                    "font": ["Calibri", 10],
+                    "rowheight":20,
+                    "height": 256,
+                    "borderwidth": 5
+                }
+            },
+            "Treeview.Heading": {
+                "configure": {
+                    "font": ["Calibri", 12, "bold"],
+                    "relief": "solid",
+                    "borderwidth": 1,
+                    "padding": [0, 0, 0, 0]
+                }
+            },
+            "Run.TFrame": {},
+            "Act.Run.TFrame": {},
+            "Roll.TButton": {},
+            "Clear.TButton": {},
+            "TableRun.Treeview": {},
+
+            "Conf.TFrame": {},
+            "Act.Conf.TFrame": {},
+            "OpenFile.TButton": {},
+            "Update.TButton": {},
+            "TableConf.Treeview": {},
+
+            "Lang.Pref.TFrame": {
+                "configure": {
+                    "padding": [0, 0, 0, 0]
+                }
+            },
+            "Pref.TFrame": {},
+            "Lang.Pref.TLabel": {
+                "configure": {
+                    "padding": [0, 0, 0, 0]
+                }
+            },
+            "Lang.TButton": {
+                "configure": {
+                    "font": ["Calibri", 10, "bold"],
+                    "padding": [50, 5],
+                    "width": 8
+                }
+            },
+            "Future.TButton": {
+                "configure": {
+                    "width": 20
+                }
             }
         }
     }

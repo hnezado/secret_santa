@@ -1,7 +1,7 @@
 {
     "en": {
         "run": "RUN",
-        "config": "CONFIGURATION",
+        "conf": "CONFIGURATION",
         "pref": "PREFERENCES",
         "label": {
             "lang": "Language"
@@ -9,8 +9,8 @@
         "btn": {
             "roll": "Roll",
             "clear": "Clear",
-            "open_config_file": "Open configuration file",
-            "update_config_table": "Update table from file",
+            "open_conf_file": "Open configuration file",
+            "update_conf_table": "Update table from file",
             "future": "Under construction...",
             "lang_en": "English",
             "lang_es": "Spanish",
@@ -20,7 +20,7 @@
             "Participant",
             "Assigned"
         ],
-        "tab_config_table_headings": [
+        "tab_conf_table_headings": [
             "Status",
             "Family ID",
             "Participant",
@@ -30,7 +30,7 @@
     },
     "es": {
         "run": "EJECUTAR",
-        "config": "CONFIGURACIÓN",
+        "conf": "CONFIGURACIÓN",
         "pref": "PREFERENCIAS",
         "label": {
             "lang": "Idioma"
@@ -38,8 +38,8 @@
         "btn": {
             "roll": "Combinar",
             "clear": "Limpiar",
-            "open_config_file": "Abrir archivo de configuración",
-            "update_config_table": "Actualizar tabla desde archivo",
+            "open_conf_file": "Abrir archivo de configuración",
+            "update_conf_table": "Actualizar tabla desde archivo",
             "future": "En construcción...",
             "lang_en": "Inglés",
             "lang_es": "Español",
@@ -49,7 +49,7 @@
             "Participante",
             "Asignación"
         ],
-        "tab_config_table_headings": [
+        "tab_conf_table_headings": [
             "Estado",
             "Identificador de familia",
             "Participante",
@@ -59,7 +59,7 @@
     },
     "fr": {
         "run": "EXÉCUTER",
-        "config": "PARAMÈTRE",
+        "conf": "PARAMÈTRE",
         "pref": "PRÉFÉRENCES",
         "label": {
             "lang": "Langue"
@@ -67,8 +67,8 @@
         "btn": {
             "roll": "Combiner",
             "clear": "Clair",
-            "open_config_file": "Ouvrir fichier de configuration",
-            "update_config_table": "Mettre à jour la table à partir du fichier",
+            "open_conf_file": "Ouvrir fichier de configuration",
+            "update_conf_table": "Mettre à jour la table à partir du fichier",
             "future": "En construction...",
             "lang_en": "Anglais",
             "lang_es": "Espagnol",
@@ -78,7 +78,7 @@
             "Participant(e)",
             "Assignement"
         ],
-        "tab_config_table_headings": [
+        "tab_conf_table_headings": [
             "Status",
             "Identifiant de famille",
             "Participant(e)",

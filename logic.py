@@ -20,11 +20,13 @@ class Logic:
 
     def read_participants(self):
         """Reads and loads the input file"""
+        
         with open("config.json") as f:
             self.participants_raw = json.load(f, object_pairs_hook=OrderedDict)
 
     def parse_participants(self):
         """Parses the raw input into a dictionary with Member() objects"""
+        
         self.participants = OrderedDict()
         for k in self.participants_raw:
             self.participants[k] = Member(
@@ -41,6 +43,7 @@ class Logic:
 
     def update_config_file(self):
         """Updates the json file"""
+        
         for k, member in self.participants.items():
             attrs = list(member.__dict__.keys())
             for attr in attrs:
@@ -53,6 +56,7 @@ class Logic:
 
     def match_adults(self):
         """Matches randomly each adult with another adult avoiding exceptions (adult-adult)"""
+        
         unmatched_a = list(self.adults.keys())
         matches = {}
         for a1 in list(self.adults.keys()):
@@ -106,6 +110,7 @@ class Logic:
     @staticmethod
     def merge_matches(m1, m2):
         """Merges both matches adults-adults and adults-children"""
+        
         merge = {k: [] for k, _ in m1.items()}
         for k, _ in merge.items():
             try:
@@ -120,6 +125,7 @@ class Logic:
 
     def run(self):
         """Main logic"""
+        
         matches_a = self.match_adults()
         matches_c = self.match_children()
         matches = self.merge_matches(matches_a, matches_c)

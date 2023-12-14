@@ -7,6 +7,7 @@ class UserSettings:
         
     def load_user_settings(self) -> dict:
         """Opens the user settings file"""
+        
         with open("./user_settings/user_settings.json") as f:
             raw = f.read()
             sett = json.loads(raw)
@@ -14,6 +15,7 @@ class UserSettings:
         
     def parse_user_settings(self, settings: object) -> dict:
         """Parses specific settings"""
+        
         parsed_sett = {}
         for k, v in settings.items():
             if not v:
@@ -28,6 +30,7 @@ class UserSettings:
     
     def unparse_user_settings(self, settings: object) -> dict:
         """Unparses specific settings"""
+        
         unparsed_sett = {}
         for k, v in settings.items():
             if not v:
@@ -42,11 +45,13 @@ class UserSettings:
 
     def update_lang(self, lang) -> None:
         """Updates the language settings"""
+        
         self.user_settings["lang"] = lang
         self.update_user_settings()
         
     def update_user_settings(self):
         """Updates the user settings file"""
+        
         unparsed_data = self.unparse_user_settings(self.user_settings)
         output = json.dumps(unparsed_data, indent=2)
         with open ("./user_settings/user_settings.json", "w") as f:
@@ -54,4 +59,5 @@ class UserSettings:
 
     def get_lang(self):
         """Returns the current set language"""
+        
         return self.user_settings["lang"]
