@@ -1,8 +1,8 @@
 class Member:
-    def __init__(self, enabled, name, f_id, age, exceptions=None):
+    def __init__(self, enabled, name, family_id, age, exceptions=None):
         self.enabled = enabled
         self.name = name
-        self.family_id = f_id
+        self.family_id = family_id
         self.age = age
         self.exceptions = exceptions
 

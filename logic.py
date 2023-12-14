@@ -26,16 +26,15 @@ class Logic:
 
     def parse_participants(self):
         """Parses the raw input into a dictionary with Member() objects"""
-        
+
         self.participants = OrderedDict()
-        for k in self.participants_raw:
-            self.participants[k] = Member(
-                self.participants_raw[k]["enabled"],
-                self.participants_raw[k]["name"],
-                self.participants_raw[k]["family_id"],
-                self.participants_raw[k]["age"],
-                self.participants_raw[k]["exceptions"]
-            )
+        for k, v in self.participants_raw.items():
+            instance = "Member("
+            for attr in v.keys():
+                value = f'"{v[attr]}"' if type(v[attr]) == str else v[attr]
+                instance = f'{instance}{attr}={value}, '
+            instance = f'{instance[:-2]})'
+            self.participants[k] = eval(instance)
         self.adults = {name: member for name, member in self.participants.items()
             if member.age == "adult" and member.enabled}
         self.children = {name: member for name, member in self.participants.items() 

@@ -9,7 +9,7 @@
 
             "tab_conf": [0, 0],
             "frame_conf_act": [10, [10, 0]],
-            "btn_conf_open_file": [0, 0],
+            "btn_conf_open_config": [0, 0],
             "btn_conf_update": [0, [5, 0]],
             "table_conf": [10, 10],
 
@@ -19,6 +19,7 @@
             "btn_pref_lang_en": [2, 0],
             "btn_pref_lang_es": [2, 0],
             "btn_pref_lang_fr": [2, 0],
+            "btn_pref_open_style_sett": [0, 0],
             "btn_pref_future": [0, 0]
         }
     },
@@ -81,7 +82,7 @@
 
             "Conf.TFrame": {},
             "Act.Conf.TFrame": {},
-            "OpenFile.TButton": {},
+            "OpenConfigFile.TButton": {},
             "Update.TButton": {},
             "TableConf.Treeview": {},
 
@@ -103,6 +104,7 @@
                     "width": 8
                 }
             },
+            "OpenStyleSettFile.TButton": {},
             "Future.TButton": {
                 "configure": {
                     "width": 20

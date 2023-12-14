@@ -23,7 +23,7 @@ class Interface:
         ## CONF
         self.tab_conf = None
         self.frame_conf_act = None
-        self.btn_conf_open_file = None
+        self.btn_conf_open_config_file = None
         self.btn_conf_update = None
         self.table_conf = None
         ## PREF
@@ -33,6 +33,7 @@ class Interface:
         self.btn_pref_lang_en = None
         self.btn_pref_lang_es = None
         self.btn_pref_lang_fr = None
+        self.btn_pref_open_style_sett = None
         self.btn_pref_future = None
 
         # Displayed text (language settings)
@@ -351,18 +352,18 @@ class Interface:
         )
 
         # Buttons
-        self.btn_conf_open_file = ttk.Button(
+        self.btn_conf_open_config_file = ttk.Button(
             self.frame_conf_act,
             command=self.open_config_file,
-            style="OpenFile.TButton",
+            style="OpenConfigFile.TButton",
             takefocus=False
         )
-        self.btn_conf_open_file.grid(
+        self.btn_conf_open_config_file.grid(
             row=0,
             column=0,
             sticky=NSEW,
-            padx=self.grid_param["padding"]["btn_conf_open_file"][0],
-            pady=self.grid_param["padding"]["btn_conf_open_file"][1]
+            padx=self.grid_param["padding"]["btn_conf_open_config"][0],
+            pady=self.grid_param["padding"]["btn_conf_open_config"][1]
         )
         self.btn_conf_update = ttk.Button(
             self.frame_conf_act,
@@ -404,7 +405,7 @@ class Interface:
         """Updates the CONFIGURATION tab and its components"""
         
         self.notebook.tab(self.tab_conf, text=self.disp_txt["conf"])
-        self.btn_conf_open_file.configure(text=self.disp_txt["btn"]["open_conf_file"])
+        self.btn_conf_open_config_file.configure(text=self.disp_txt["btn"]["open_config"])
         self.btn_conf_update.configure(text=self.disp_txt["btn"]["update_conf_table"])
         
         ## Headings & columns
@@ -467,13 +468,14 @@ class Interface:
     def create_tab_pref(self) -> None:
         """Creates de PREFERENCES tab"""
         
-        # Frame
+        # Frame preferences
         self.tab_pref = ttk.Frame(
             self.notebook,
             style="Pref.TFrame"
         )
         self.tab_pref.rowconfigure(0, weight=25)
-        self.tab_pref.rowconfigure(1, weight=75)
+        self.tab_pref.rowconfigure(1, weight=10)
+        self.tab_pref.rowconfigure(2, weight=65)
         self.tab_pref.columnconfigure(0, weight=100)
 
         self.tab_pref.grid(
@@ -487,7 +489,7 @@ class Interface:
             self.tab_pref
         )
         
-        # Language preferences frame
+        # Frame preferences language 
         self.frame_pref_lang = ttk.Frame(
             self.tab_pref,
             style="Lang.Pref.TFrame"
@@ -504,7 +506,7 @@ class Interface:
             padx=self.grid_param["padding"]["frame_pref_lang"][0],
             pady=self.grid_param["padding"]["frame_pref_lang"][1]
         )
-        # Language label
+        # Label language
         self.label_pref_lang = ttk.Label(
             self.frame_pref_lang,
             style="Lang.Pref.TLabel",
@@ -555,6 +557,22 @@ class Interface:
             padx=self.grid_param["padding"]["btn_pref_lang_fr"][0],
             pady=self.grid_param["padding"]["btn_pref_lang_fr"][1]
         )
+        
+        ## Button open user settings
+        self.btn_pref_open_style_sett = ttk.Button(
+            self.tab_pref,
+            command=self.open_style_sett_file,
+            style="OpenStyleSett.TButton",
+            takefocus=False
+        )
+        self.btn_pref_open_style_sett.grid(
+            row=1,
+            column=0,
+            padx=self.grid_param["padding"]["btn_pref_open_style_sett"][0],
+            pady=self.grid_param["padding"]["btn_pref_open_style_sett"][1]
+        )
+        
+        ## Button Future
         self.btn_pref_future = ttk.Button(
             self.tab_pref,
             command=None,
@@ -562,7 +580,7 @@ class Interface:
             takefocus=False
         )
         self.btn_pref_future.grid(
-            row=1,
+            row=2,
             column=0,
             padx=self.grid_param["padding"]["btn_pref_future"][0],
             pady=self.grid_param["padding"]["btn_pref_future"][1]
@@ -590,11 +608,13 @@ class Interface:
             image=self.img["fr_flag"],
             compound=LEFT
         )
+        self.btn_pref_open_style_sett.configure(
+            text=self.disp_txt["btn"]["open_style_sett"]
+        )
         self.btn_pref_future.configure(
             text=self.disp_txt["btn"]["future"],
             image=self.img["wip"],
             compound=TOP
-            # pady=self.fixed_style["button"]["generic"]["padding"],
         )
 
     def empty_table(self, table: ttk.Treeview) -> None:
@@ -616,9 +636,14 @@ class Interface:
         self.update_tab_run()
 
     def open_config_file(self) -> None:
-        """Opens the configuration file to edit it"""
+        """Opens the configuration file"""
         
         os.system("notepad.exe " + self.uset.user_settings["input_file"])
+
+    def open_style_sett_file(self) -> None:
+        """Opens the style settings file"""
+        
+        os.system("notepad.exe " + self.uset.user_settings["style"])
 
     def swap_check(self, row: int) -> None:
         """Swaps the member status (enabled, disabled)"""
@@ -670,6 +695,8 @@ class Interface:
                     self.swap_check(row)
                     self.logic.update_config_file()
                     self.update_tab_conf()
+                else:
+                    print(row, col)
             except:
                 log.error("Cell coordinates cannot be calculated")
 

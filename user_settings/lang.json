@@ -9,12 +9,13 @@
         "btn": {
             "roll": "Roll",
             "clear": "Clear",
-            "open_conf_file": "Open configuration file",
+            "open_config": "Open configuration file",
             "update_conf_table": "Update table from file",
-            "future": "Under construction...",
             "lang_en": "English",
             "lang_es": "Spanish",
-            "lang_fr": "French"
+            "lang_fr": "French",
+            "open_style_sett": "Open style settings file",
+            "future": "Under construction..."
         },
         "tab_run_table_headings": [
             "Participant",
@@ -38,12 +39,13 @@
         "btn": {
             "roll": "Combinar",
             "clear": "Limpiar",
-            "open_conf_file": "Abrir archivo de configuración",
+            "open_config": "Abrir archivo de configuración",
             "update_conf_table": "Actualizar tabla desde archivo",
-            "future": "En construcción...",
             "lang_en": "Inglés",
             "lang_es": "Español",
-            "lang_fr": "Francés"
+            "lang_fr": "Francés",
+            "open_style_sett": "Abrir archivo de configuración de estilo",
+            "future": "En construcción..."
         },
         "tab_run_table_headings": [
             "Participante",
@@ -67,16 +69,17 @@
         "btn": {
             "roll": "Combiner",
             "clear": "Clair",
-            "open_conf_file": "Ouvrir fichier de configuration",
+            "open_config": "Ouvrir fichier de configuration",
             "update_conf_table": "Mettre à jour la table à partir du fichier",
-            "future": "En construction...",
             "lang_en": "Anglais",
             "lang_es": "Espagnol",
-            "lang_fr": "Français"
+            "lang_fr": "Français",
+            "open_style_sett": "Ouvrir le fichier de paramètres de style",
+            "future": "En construction..."
         },
         "tab_run_table_headings": [
             "Participant(e)",
-            "Assignement"
+            "Attribution"
         ],
         "tab_conf_table_headings": [
             "Status",
