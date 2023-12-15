@@ -675,6 +675,12 @@ class Interface:
         self.update_tab_conf()
         self.update_tab_pref()
 
+    def cancel_edit(self) -> None:
+        """Cancels and closes the editing window"""
+        
+        res = vars(Event())
+        print("res:", res)
+
     @staticmethod
     def disable_resizing(_) -> str:
         """Disables the column resizing"""
@@ -696,9 +702,90 @@ class Interface:
                     self.logic.update_config_file()
                     self.update_tab_conf()
                 else:
-                    print(row, col)
+                    member = list(self.logic.participants.values())[row]
+                    self.edit_member(member)
             except:
                 log.error("Cell coordinates cannot be calculated")
+
+    def edit_member(self, member):
+        """Opens a window where member data can be edited"""
+        # TODO Pendiente de añadir languages a los botones (y labels?)
+        
+        member_attrs = vars(member)
+        
+        # Popup window
+        popup = Toplevel()
+        popup.rowconfigure(0, weight=90)
+        popup.rowconfigure(1, weight=10)
+        popup.columnconfigure(0, weight=100)
+        
+        ## Frames
+        frame_data = Frame(popup)
+        [frame_data.rowconfigure(i, weight=100//len(member_attrs)) for i in range(len(member_attrs))]
+        frame_data.columnconfigure(0, weight=100)
+        frame_data.grid(
+            row=0,
+            column=0,
+            sticky=NSEW
+        )
+        frame_actions = Frame(popup)
+        frame_actions.rowconfigure(0, weight=100)
+        frame_actions.columnconfigure(0, weight=50)
+        frame_actions.columnconfigure(1, weight=50)
+        frame_actions.grid(
+            row=1,
+            column=0,
+            sticky=NSEW
+        )
+        
+        # Member data
+        for attr_index, (attr_name, attr_value) in enumerate(member_attrs.items()):
+            frame_attr = Frame(frame_data)
+            frame_attr.columnconfigure(0, weight=20)
+            frame_attr.columnconfigure(1, weight=80)
+            if type(attr_value) == list:
+                if len(attr_value) > 0:
+                    for row_index in range(len(attr_value)):
+                        frame_attr.rowconfigure(row_index, weight=100//len(attr_value))
+                else:
+                    frame_attr.rowconfigure(0, weight=100)
+                frame_attr.grid(row=attr_index, column=0, sticky=NSEW)
+                label_box = Label(frame_attr, height=1, text=f'{attr_name}: '.title())
+                label_box.grid(row=0, column=0, sticky="NSW")
+                for row_index, attr_element in enumerate(attr_value):
+                    text_box = Text(frame_attr, height=1)
+                    text_box.grid(row=row_index, column=1, sticky=NSEW)
+                    text_box.insert("end", attr_element)
+            else:
+                frame_attr.rowconfigure(0, weight=100)
+                frame_attr.grid(row=attr_index, column=0, sticky=NSEW)
+                label_box = Label(frame_attr, height=1, text=f'{attr_name}: '.title())
+                label_box.grid(row=0, column=0, sticky="NSW")
+                text_box = Text(frame_attr, height=1)
+                text_box.grid(row=0, column=1, sticky=NSEW)
+                text_box.insert("end", attr_value)
+        
+        ## Buttons
+        btn_save = Button(
+            frame_actions,
+            text="Save",
+            command=lambda: print("Saving")
+        )
+        btn_save.grid(
+            row=1,
+            column=0,
+            sticky=NSEW
+        )
+        btn_cancel = Button(
+            frame_actions,
+            text="Cancel",
+            command=self.cancel_edit
+        )
+        btn_cancel.grid(
+            row=1,
+            column=1,
+            sticky=NSEW
+        )
 
     def display(self) -> None:
         """Main interface"""

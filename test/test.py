@@ -1,3 +1,7 @@
-value = int("true")
-print(type(value))
-print(value)
+asdf = {
+  "a": "aaa",
+  "b": "bbb",
+  "c": "ccc",
+  "d": "ddd"
+}
+print(len(asdf))

@@ -28,13 +28,15 @@ class Logic:
         """Parses the raw input into a dictionary with Member() objects"""
 
         self.participants = OrderedDict()
-        for k, v in self.participants_raw.items():
+        
+        for name, attrs in self.participants_raw.items():
             instance = "Member("
-            for attr in v.keys():
-                value = f'"{v[attr]}"' if type(v[attr]) == str else v[attr]
+            for attr in attrs.keys():
+                value = f'"{attrs[attr]}"' if type(attrs[attr]) == str else attrs[attr]
                 instance = f'{instance}{attr}={value}, '
             instance = f'{instance[:-2]})'
-            self.participants[k] = eval(instance)
+            self.participants[name] = eval(instance)
+            
         self.adults = {name: member for name, member in self.participants.items()
             if member.age == "adult" and member.enabled}
         self.children = {name: member for name, member in self.participants.items() 
@@ -44,8 +46,7 @@ class Logic:
         """Updates the json file"""
         
         for k, member in self.participants.items():
-            attrs = list(member.__dict__.keys())
-            for attr in attrs:
+            for attr in list(vars(member).keys()):
                 self.participants_raw[k][attr] = eval(f'member.{attr}')
 
         output = json.dumps(self.participants_raw, indent=2)

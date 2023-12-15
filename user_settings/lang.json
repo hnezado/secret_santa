@@ -9,12 +9,12 @@
         "btn": {
             "roll": "Roll",
             "clear": "Clear",
-            "open_config": "Open configuration file",
-            "update_conf_table": "Update table from file",
+            "open_config": "Open configuration",
+            "update_conf_table": "Update table",
             "lang_en": "English",
             "lang_es": "Spanish",
             "lang_fr": "French",
-            "open_style_sett": "Open style settings file",
+            "open_style_sett": "Open style settings",
             "future": "Under construction..."
         },
         "tab_run_table_headings": [
@@ -39,12 +39,12 @@
         "btn": {
             "roll": "Combinar",
             "clear": "Limpiar",
-            "open_config": "Abrir archivo de configuración",
-            "update_conf_table": "Actualizar tabla desde archivo",
+            "open_config": "Abrir configuración",
+            "update_conf_table": "Actualizar tabla",
             "lang_en": "Inglés",
             "lang_es": "Español",
             "lang_fr": "Francés",
-            "open_style_sett": "Abrir archivo de configuración de estilo",
+            "open_style_sett": "Abrir configuración de estilo",
             "future": "En construcción..."
         },
         "tab_run_table_headings": [
@@ -69,12 +69,12 @@
         "btn": {
             "roll": "Combiner",
             "clear": "Clair",
-            "open_config": "Ouvrir fichier de configuration",
-            "update_conf_table": "Mettre à jour la table à partir du fichier",
+            "open_config": "Ouvrir configuration",
+            "update_conf_table": "Mettre à jour la table",
             "lang_en": "Anglais",
             "lang_es": "Espagnol",
             "lang_fr": "Français",
-            "open_style_sett": "Ouvrir le fichier de paramètres de style",
+            "open_style_sett": "Ouvrir paramètres de style",
             "future": "En construction..."
         },
         "tab_run_table_headings": [
