@@ -1,17 +1,20 @@
-from tkinter import *
-import Pmw
+import tkinter as tk
+from tkinter import ttk
 
-root = Tk()
+root = tk.Tk()
 
-Pmw.initialise(root) #initializing it in the root window
+tree = ttk.Treeview(root, columns=('size', 'modified'), selectmode='browse')
 
-l = Label(root,text='Random Text')
-l.pack()
+tree.heading('size', text='SIZE')
+tree.heading('modified', text='MODIFIED')
 
-b = Button(root,text='Hover me')
-b.pack()
+tree.insert('', "end", 'gallery1', text='Applications1')
+tree.insert('', "end", 'gallery2', text='Applications2')
 
-tooltip_1 = Pmw.Balloon(root) #Calling the tooltip
-tooltip_1.bind(b,'This is the hover Text\nHope you get an idea of whats going on here.') #binding it and assigning a text to it
+tree.selection_set('gallery1')
 
+tree.focus_set()
+tree.focus('gallery1')
+
+tree.grid()
 root.mainloop()

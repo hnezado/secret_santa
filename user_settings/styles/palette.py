@@ -8,5 +8,6 @@ palette = {
     6: "#4D9B50", # background (button-map-active)
     7: "#558B57", # background (tab) / background (button)
     8: "#276733", # foreground (tab-map-selected)
-    9: "#173D1E", # foreground (treeview)
+    9: "#173D1E", # foreground (treeview),
+    10: "#478ADD" # selected rows
 }

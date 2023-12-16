@@ -50,6 +50,9 @@ class Interface:
         self.disp_txt = None
         self.update_lang()
         
+        # Row selected
+        self.table_conf_sel = None
+        
         # Columns to display in each table
         self.table_run_cols = ("participant", "assigned")
         self.table_conf_cols = ("#0", "family_id", "participant", "age", "exceptions")
@@ -441,6 +444,10 @@ class Interface:
             "oddrow",
             background="#C7DEB1"
         )
+        self.table_conf.tag_configure(
+            "selected",
+            background="#478ADD"
+        )
 
         self.update_tab_conf()
 
@@ -492,7 +499,10 @@ class Interface:
         self.logic.read_participants()
         self.logic.parse_participants()
         for i, member in enumerate(self.logic.participants.values()):
-            tags = ("evenrow" if i % 2 == 0 else "oddrow")
+            if self.table_conf_sel == i:
+                tags = "selected"
+            else:
+                tags = ("evenrow" if i % 2 == 0 else "oddrow")
             img = self.img["checked"] if member.enabled else self.img["unchecked"]
             values = (f'{member.family_id}',
                       f'{member.name.title()}',
@@ -698,8 +708,9 @@ class Interface:
     def action_edit_member(self) -> None:
         """Edits an existing member from the config file"""
         
-        print("Editing member!")
-        self.update_tab_conf()
+        if self.table_conf_sel is not None:
+            self.edit_member(list(self.logic.participants.values())[self.table_conf_sel])
+            self.update_tab_conf()
 
     def action_del_member(self) -> None:
         """Deletes an existing member from the config file"""
@@ -774,8 +785,9 @@ class Interface:
                     self.logic.update_config_file()
                     self.update_tab_conf()
                 else:
-                    member = list(self.logic.participants.values())[row]
-                    self.edit_member(member)
+                    self.table_conf_sel = row if self.table_conf_sel != row else None
+                    print(self.table_conf_sel)
+                    self.update_tab_conf()
             except:
                 log.error("Cell coordinates cannot be calculated")
 
@@ -876,4 +888,5 @@ class Interface:
         
         self.table_run.bind("<Button-1>", self.disable_resizing)
         self.table_conf.bind("<Button-1>", self.on_click_config)
+        self.table_conf.bind("sel_row")
         self.root.mainloop()
