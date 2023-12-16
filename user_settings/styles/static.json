@@ -10,7 +10,9 @@
             "tab_conf": [0, 0],
             "frame_conf_act": [10, [10, 0]],
             "btn_conf_open_config": [0, 0],
-            "btn_conf_update": [0, [5, 0]],
+            "btn_conf_add": [[0, 5], [5, 0]],
+            "btn_conf_edit": [[0, 5], [5, 0]],
+            "btn_conf_del": [[0], [5, 0]],
             "table_conf": [10, 10],
 
             "tab_pref": [0, 0],
@@ -83,7 +85,27 @@
             "Conf.TFrame": {},
             "Act.Conf.TFrame": {},
             "OpenConfigFile.TButton": {},
-            "Update.TButton": {},
+            "Add.TButton": {
+                "configure": {
+                    "font": ["Calibri", 20],
+                    "anchor": "center",
+                    "padding": [0, 0, 0, 0]
+                }
+            },
+            "Edit.TButton": {
+                "configure": {
+                    "font": ["Calibri", 20],
+                    "anchor": "center",
+                    "padding": [0, 0, 0, 0]
+                }
+            },
+            "Del.TButton": {
+                "configure": {
+                    "font": ["Calibri", 20],
+                    "anchor": "center",
+                    "padding": [0, 0, 0, 0]
+                }
+            },
             "TableConf.Treeview": {},
 
             "Lang.Pref.TFrame": {

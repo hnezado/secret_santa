@@ -1,5 +1,6 @@
 import os
 import json
+import Pmw
 import logging as log
 from tkinter import *
 from tkinter import ttk
@@ -24,8 +25,13 @@ class Interface:
         self.tab_conf = None
         self.frame_conf_act = None
         self.btn_conf_open_config_file = None
-        self.btn_conf_update = None
+        self.btn_conf_add = None
+        self.btn_conf_edit = None
+        self.btn_conf_del = None
         self.table_conf = None
+        self.tip_add = None
+        self.tip_edit = None
+        self.tip_del = None
         ## PREF
         self.tab_pref = None
         self.frame_pref_lang = None
@@ -35,6 +41,9 @@ class Interface:
         self.btn_pref_lang_fr = None
         self.btn_pref_open_style_sett = None
         self.btn_pref_future = None
+        self.tip_lang_en = None
+        self.tip_lang_es = None
+        self.tip_lang_fr = None
 
         # Displayed text (language settings)
         self.lang = None
@@ -57,6 +66,9 @@ class Interface:
 
         # Data
         self.img = {
+            "add": PhotoImage(file="./images/add.png"),
+            "edit": PhotoImage(file="./images/edit.png"),
+            "del": PhotoImage(file="./images/del.png"),
             "checked": PhotoImage(file="./images/checked.png"),
             "unchecked": PhotoImage(file="./images/unchecked.png"),
             "en_flag": PhotoImage(file="./images/en.png"),
@@ -78,6 +90,7 @@ class Interface:
         self.table_conf_last_index = 0
         
         # Initialization
+        Pmw.initialise(self.root)
         self.set_style()
         self.update_style()
         self.set_tabs()
@@ -229,7 +242,7 @@ class Interface:
         ## Buttons
         self.btn_run_roll = ttk.Button(
             self.frame_run_act,
-            command=self.run,
+            command=self.action_run,
             style="Roll.TButton",
             takefocus=False
         )
@@ -242,7 +255,7 @@ class Interface:
         )
         self.btn_run_clear = ttk.Button(
             self.frame_run_act,
-            command=self.clear,
+            command=self.action_clear,
             style="Clear.TButton",
             takefocus=False
         )
@@ -343,7 +356,9 @@ class Interface:
         )
         self.frame_conf_act.rowconfigure(0, weight=50)
         self.frame_conf_act.rowconfigure(1, weight=50)
-        self.frame_conf_act.columnconfigure(0, weight=100)
+        self.frame_conf_act.columnconfigure(0, weight=33)
+        self.frame_conf_act.columnconfigure(1, weight=33)
+        self.frame_conf_act.columnconfigure(2, weight=33)
         self.frame_conf_act.grid(
             row=0,
             column=0,
@@ -355,29 +370,56 @@ class Interface:
         # Buttons
         self.btn_conf_open_config_file = ttk.Button(
             self.frame_conf_act,
-            command=self.open_config_file,
+            command=self.action_open_config_file,
             style="OpenConfigFile.TButton",
             takefocus=False
         )
         self.btn_conf_open_config_file.grid(
             row=0,
             column=0,
+            columnspan=3,
             sticky=NSEW,
             padx=self.grid_param["padding"]["btn_conf_open_config"][0],
             pady=self.grid_param["padding"]["btn_conf_open_config"][1]
         )
-        self.btn_conf_update = ttk.Button(
+        self.btn_conf_add = ttk.Button(
             self.frame_conf_act,
-            command=self.update_tab_conf,
-            style="Update.TButton",
+            command=self.action_add_member,
+            style="Add.TButton",
             takefocus=False
         )
-        self.btn_conf_update.grid(
+        self.btn_conf_add.grid(
             row=1,
             column=0,
             sticky=NSEW,
-            padx=self.grid_param["padding"]["btn_conf_update"][0],
-            pady=self.grid_param["padding"]["btn_conf_update"][1]
+            padx=self.grid_param["padding"]["btn_conf_add"][0],
+            pady=self.grid_param["padding"]["btn_conf_add"][1]
+        )
+        self.btn_conf_edit = ttk.Button(
+            self.frame_conf_act,
+            command=self.action_edit_member,
+            style="Edit.TButton",
+            takefocus=False
+        )
+        self.btn_conf_edit.grid(
+            row=1,
+            column=1,
+            sticky=NSEW,
+            padx=self.grid_param["padding"]["btn_conf_edit"][0],
+            pady=self.grid_param["padding"]["btn_conf_edit"][1]
+        )
+        self.btn_conf_del = ttk.Button(
+            self.frame_conf_act,
+            command=self.action_del_member,
+            style="Del.TButton",
+            takefocus=False
+        )
+        self.btn_conf_del.grid(
+            row=1,
+            column=2,
+            sticky=NSEW,
+            padx=self.grid_param["padding"]["btn_conf_del"][0],
+            pady=self.grid_param["padding"]["btn_conf_del"][1]
         )
 
         # Treeview
@@ -407,7 +449,17 @@ class Interface:
         
         self.notebook.tab(self.tab_conf, text=self.disp_txt["conf"])
         self.btn_conf_open_config_file.configure(text=self.disp_txt["btn"]["open_config"])
-        self.btn_conf_update.configure(text=self.disp_txt["btn"]["update_conf_table"])
+        self.btn_conf_add.configure(image=self.img["add"])
+        self.btn_conf_edit.configure(image=self.img["edit"])
+        self.btn_conf_del.configure(image=self.img["del"])
+        
+        # Tooltips
+        self.tip_add = Pmw.Balloon(self.root)
+        self.tip_add.bind(self.btn_conf_add, self.disp_txt["btn"]["add_conf_table"])
+        self.tip_edit = Pmw.Balloon(self.root)
+        self.tip_edit.bind(self.btn_conf_edit, self.disp_txt["btn"]["edit_conf_table"])
+        self.tip_del = Pmw.Balloon(self.root)
+        self.tip_del.bind(self.btn_conf_del, self.disp_txt["btn"]["del_conf_table"])
         
         ## Headings & columns
         for i, v in enumerate(self.table_conf_cols):
@@ -524,7 +576,7 @@ class Interface:
         ## Buttons language
         self.btn_pref_lang_en = ttk.Button(
             self.frame_pref_lang,
-            command=self.swap_lang_en,
+            command=self.action_swap_lang_en,
             style="Lang.TButton",
             takefocus=False
         )
@@ -536,7 +588,7 @@ class Interface:
         )
         self.btn_pref_lang_es = ttk.Button(
             self.frame_pref_lang,
-            command=self.swap_lang_es,
+            command=self.action_swap_lang_es,
             style="Lang.TButton",
             takefocus=False
         )
@@ -548,7 +600,7 @@ class Interface:
         )
         self.btn_pref_lang_fr = ttk.Button(
             self.frame_pref_lang,
-            command=self.swap_lang_fr,
+            command=self.action_swap_lang_fr,
             style="Lang.TButton",
             takefocus=False
         )
@@ -562,7 +614,7 @@ class Interface:
         ## Button open user settings
         self.btn_pref_open_style_sett = ttk.Button(
             self.tab_pref,
-            command=self.open_style_sett_file,
+            command=self.action_open_style_sett_file,
             style="OpenStyleSett.TButton",
             takefocus=False
         )
@@ -576,7 +628,7 @@ class Interface:
         ## Button Future
         self.btn_pref_future = ttk.Button(
             self.tab_pref,
-            command=None,
+            command=lambda: print(":)"),
             style="Future.TButton",
             takefocus=False
         )
@@ -594,21 +646,9 @@ class Interface:
         
         self.notebook.tab(self.tab_pref, text=self.disp_txt["pref"])
         self.label_pref_lang.configure(text=self.disp_txt["label"]["lang"])
-        self.btn_pref_lang_en.configure(
-            text=f' {self.disp_txt["btn"]["lang_en"]}',
-            image=self.img["en_flag"],
-            compound=LEFT
-        )
-        self.btn_pref_lang_es.configure(
-            text=f' {self.disp_txt["btn"]["lang_es"]}',
-            image=self.img["es_flag"],
-            compound=LEFT
-        )
-        self.btn_pref_lang_fr.configure(
-            text=f' {self.disp_txt["btn"]["lang_fr"]}',
-            image=self.img["fr_flag"],
-            compound=LEFT
-        )
+        self.btn_pref_lang_en.configure(image=self.img["en_flag"])
+        self.btn_pref_lang_es.configure(image=self.img["es_flag"])
+        self.btn_pref_lang_fr.configure(image=self.img["fr_flag"])
         self.btn_pref_open_style_sett.configure(
             text=self.disp_txt["btn"]["open_style_sett"]
         )
@@ -617,6 +657,14 @@ class Interface:
             image=self.img["wip"],
             compound=TOP
         )
+        
+        # Tooltips
+        self.tip_lang_en = Pmw.Balloon(self.root)
+        self.tip_lang_en.bind(self.btn_pref_lang_en, self.disp_txt["btn"]["lang_en"])
+        self.tip_lang_es = Pmw.Balloon(self.root)
+        self.tip_lang_es.bind(self.btn_pref_lang_es, self.disp_txt["btn"]["lang_es"])
+        self.tip_lang_fr = Pmw.Balloon(self.root)
+        self.tip_lang_fr.bind(self.btn_pref_lang_fr, self.disp_txt["btn"]["lang_fr"])
 
     def empty_table(self, table: ttk.Treeview) -> None:
         """Empties the config table and resets its index"""
@@ -624,35 +672,53 @@ class Interface:
         table.delete(*table.get_children())
         self.table_conf_last_index = 0
 
-    def run(self) -> None:
+    def action_run(self) -> None:
         """Retrieves the randomized paired data"""
         
         self.table_run_data = self.logic.run()
         self.update_tab_run()
 
-    def clear(self) -> None:
+    def action_clear(self) -> None:
         """Clears the retrieved data and the treeview"""
         
         self.table_run_data.clear()
         self.update_tab_run()
 
-    def open_config_file(self) -> None:
+    def action_open_config_file(self) -> None:
         """Opens the configuration file"""
         
         os.system("notepad.exe " + self.uset.user_settings["input_file"])
 
-    def open_style_sett_file(self) -> None:
+    def action_add_member(self) -> None:
+        """Adds a new member to the config file"""
+        
+        print("Adding new member!")
+        self.update_tab_conf()
+    
+    def action_edit_member(self) -> None:
+        """Edits an existing member from the config file"""
+        
+        print("Editing member!")
+        self.update_tab_conf()
+
+    def action_del_member(self) -> None:
+        """Deletes an existing member from the config file"""
+        
+        print("Deleting member!")
+        self.update_tab_conf()
+
+    def action_open_style_sett_file(self) -> None:
         """Opens the style settings file"""
         
         os.system("notepad.exe " + self.uset.user_settings["style"])
 
-    def swap_check(self, row: int) -> None:
+    def action_swap_check(self, row: int) -> None:
         """Swaps the member status (enabled, disabled)"""
         
         member = list(self.logic.participants.keys())[row]
         self.logic.participants[member].enabled = not self.logic.participants[member].enabled
 
-    def swap_lang_en(self) -> None:
+    def action_swap_lang_en(self) -> None:
         """Swaps and updates the language to english"""
         
         self.update_lang("en")
@@ -660,7 +726,7 @@ class Interface:
         self.update_tab_conf()
         self.update_tab_pref()
     
-    def swap_lang_es(self) -> None:
+    def action_swap_lang_es(self) -> None:
         """Swaps and updates the language to spanish"""
         
         self.update_lang("es")
@@ -668,7 +734,7 @@ class Interface:
         self.update_tab_conf()
         self.update_tab_pref()
     
-    def swap_lang_fr(self) -> None:
+    def action_swap_lang_fr(self) -> None:
         """Swaps and updates the language to french"""
         
         self.update_lang("fr")
@@ -676,12 +742,12 @@ class Interface:
         self.update_tab_conf()
         self.update_tab_pref()
 
-    def save_edit(self) -> None:
+    def action_save_edit(self) -> None:
         """Saves changes made in the editing popup"""
         
         print("Saving!")
 
-    def cancel_edit(self) -> None:
+    def action_cancel_edit(self) -> None:
         """Cancels and closes the editing popup"""
         
         self.popup_edit.destroy()
@@ -704,7 +770,7 @@ class Interface:
                 row = int(self.table_conf.identify_row(event.y))
                 col = int(self.table_conf.identify_column(event.x)[1:])
                 if col == 0:
-                    self.swap_check(row)
+                    self.action_swap_check(row)
                     self.logic.update_config_file()
                     self.update_tab_conf()
                 else:
@@ -779,7 +845,7 @@ class Interface:
         btn_save = Button(
             frame_actions,
             text="Save",
-            command=self.save_edit
+            command=self.action_save_edit
         )
         btn_save.grid(
             row=1,
@@ -789,7 +855,7 @@ class Interface:
         btn_cancel = Button(
             frame_actions,
             text="Cancel",
-            command=self.cancel_edit
+            command=self.action_cancel_edit
         )
         btn_cancel.grid(
             row=1,
@@ -805,7 +871,6 @@ class Interface:
         popup_y = self.root.winfo_screenheight() // 2 - (popup_h // 2)
         self.popup_edit.geometry(f'{popup_w}x{popup_h}+{popup_x}+{popup_y}')
         
-
     def display(self) -> None:
         """Main interface"""
         

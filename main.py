@@ -21,5 +21,6 @@ def main():
 if __name__ == "__main__":
     main()
 
-# TODO implementar en CONFIG tab 3 botones (new, edit, delete) que interactúen con la selección actual en el treeview
+# TODO Añadir funcionalidad: botones (new, edit, delete) que funcionen con la selección de fila actual en el treeview
+# TODO Plantear cambiar iconos por "iconos" en fuentes. Cambios de color/tamaño dinámicos
 # TODO implementar una pestaña nueva de "Ayuda / (?)" que explique cómo usar el programa
