@@ -45,7 +45,7 @@ class Interface:
         self.table_run_cols = ("participant", "assigned")
         self.table_conf_cols = ("#0", "family_id", "participant", "age", "exceptions")
 
-        # Root
+        # Windows
         self.root = Tk()
         self.fixed_win = {
             "minsize": (640, 480),
@@ -53,6 +53,7 @@ class Interface:
             "pos": (0, 0)
         }
         self.set_root()
+        self.popup_edit = None
 
         # Data
         self.img = {
@@ -675,11 +676,16 @@ class Interface:
         self.update_tab_conf()
         self.update_tab_pref()
 
-    def cancel_edit(self) -> None:
-        """Cancels and closes the editing window"""
+    def save_edit(self) -> None:
+        """Saves changes made in the editing popup"""
         
-        res = vars(Event())
-        print("res:", res)
+        print("Saving!")
+
+    def cancel_edit(self) -> None:
+        """Cancels and closes the editing popup"""
+        
+        self.popup_edit.destroy()
+        self.popup_edit.update()
 
     @staticmethod
     def disable_resizing(_) -> str:
@@ -714,13 +720,17 @@ class Interface:
         member_attrs = vars(member)
         
         # Popup window
-        popup = Toplevel()
-        popup.rowconfigure(0, weight=90)
-        popup.rowconfigure(1, weight=10)
-        popup.columnconfigure(0, weight=100)
+        try:
+            self.popup_edit.destroy()
+        except:
+            pass
+        self.popup_edit = Toplevel()
+        self.popup_edit.rowconfigure(0, weight=90)
+        self.popup_edit.rowconfigure(1, weight=10)
+        self.popup_edit.columnconfigure(0, weight=100)
         
         ## Frames
-        frame_data = Frame(popup)
+        frame_data = Frame(self.popup_edit)
         [frame_data.rowconfigure(i, weight=100//len(member_attrs)) for i in range(len(member_attrs))]
         frame_data.columnconfigure(0, weight=100)
         frame_data.grid(
@@ -728,7 +738,7 @@ class Interface:
             column=0,
             sticky=NSEW
         )
-        frame_actions = Frame(popup)
+        frame_actions = Frame(self.popup_edit)
         frame_actions.rowconfigure(0, weight=100)
         frame_actions.columnconfigure(0, weight=50)
         frame_actions.columnconfigure(1, weight=50)
@@ -769,7 +779,7 @@ class Interface:
         btn_save = Button(
             frame_actions,
             text="Save",
-            command=lambda: print("Saving")
+            command=self.save_edit
         )
         btn_save.grid(
             row=1,
@@ -786,6 +796,15 @@ class Interface:
             column=1,
             sticky=NSEW
         )
+        
+        # Calculate popup window geometry
+        self.popup_edit.update()
+        popup_w = self.popup_edit.winfo_width()
+        popup_h = self.popup_edit.winfo_height()
+        popup_x = self.root.winfo_screenwidth() // 2 - (popup_w // 2)
+        popup_y = self.root.winfo_screenheight() // 2 - (popup_h // 2)
+        self.popup_edit.geometry(f'{popup_w}x{popup_h}+{popup_x}+{popup_y}')
+        
 
     def display(self) -> None:
         """Main interface"""
