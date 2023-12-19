@@ -63,7 +63,7 @@
     ]
   },
   "zoe": {
-    "enabled": false,
+    "enabled": true,
     "name": "Zoe",
     "family_id": 3,
     "age": "child",
@@ -97,7 +97,7 @@
     ]
   },
   "margot": {
-    "enabled": true,
+    "enabled": false,
     "name": "Margot",
     "family_id": 4,
     "age": "child",
@@ -111,14 +111,14 @@
     "exceptions": []
   },
   "adeline": {
-    "enabled": true,
+    "enabled": false,
     "name": "Adeline",
     "family_id": 5,
     "age": "adult",
     "exceptions": []
   },
   "hector": {
-    "enabled": false,
+    "enabled": true,
     "name": "Hector",
     "family_id": 5,
     "age": "adult",

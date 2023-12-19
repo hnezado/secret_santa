@@ -85,23 +85,9 @@
             "Conf.TFrame": {},
             "Act.Conf.TFrame": {},
             "OpenConfigFile.TButton": {},
-            "Add.TButton": {
+            "ActionConf.TButton": {
                 "configure": {
-                    "font": ["Calibri", 20],
-                    "anchor": "center",
-                    "padding": [0, 0, 0, 0]
-                }
-            },
-            "Edit.TButton": {
-                "configure": {
-                    "font": ["Calibri", 20],
-                    "anchor": "center",
-                    "padding": [0, 0, 0, 0]
-                }
-            },
-            "Del.TButton": {
-                "configure": {
-                    "font": ["Calibri", 20],
+                    "font": ["Symbols Font 2", 48],
                     "anchor": "center",
                     "padding": [0, 0, 0, 0]
                 }

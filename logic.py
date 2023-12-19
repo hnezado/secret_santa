@@ -9,47 +9,65 @@ from config import Member
 
 class Logic:
     def __init__(self):
-        self.participants_raw = None
-        self.participants_names = None
-        self.participants = None
+        self.member_attrs = ["enabled", "name", "family_id", "adult", "exceptions"]
+        self.members_raw = None
+        self.members_names = None
+        self.members = None
         self.adults = None
         self.children = None
 
-        self.read_participants()
-        self.parse_participants()
+        self.read_members()
+        self.parse_members()
 
-    def read_participants(self):
-        """Reads and loads the input file"""
+    def read_members(self):
+        """Reads and loads the config file"""
         
         with open("config.json") as f:
-            self.participants_raw = json.load(f, object_pairs_hook=OrderedDict)
+            self.members_raw = json.load(f, object_pairs_hook=OrderedDict)
 
-    def parse_participants(self):
+    def add_member(self, member):
+        """Adds a new member to the config file"""
+        
+        for attr in vars(member):
+            self.members[attr] = member[attr]
+        self.update_config_file()
+        
+    def del_member(self, member):
+        """Deletes an existing member from the config file"""
+        
+        print(1, self.members)
+        del self.members[member.name.lower()]
+        self.update_config_file()
+        print(2, self.members)
+
+    def parse_members(self):
         """Parses the raw input into a dictionary with Member() objects"""
 
-        self.participants = OrderedDict()
+        self.members = OrderedDict()
         
-        for name, attrs in self.participants_raw.items():
+        for name, attrs in self.members_raw.items():
             instance = "Member("
             for attr in attrs.keys():
                 value = f'"{attrs[attr]}"' if type(attrs[attr]) == str else attrs[attr]
-                instance = f'{instance}{attr}={value}, '
+                instance = f'{instance}{value}, '
             instance = f'{instance[:-2]})'
-            self.participants[name] = eval(instance)
+            self.members[name] = eval(instance)
             
-        self.adults = {name: member for name, member in self.participants.items()
+        self.adults = {name: member for name, member in self.members.items()
             if member.age == "adult" and member.enabled}
-        self.children = {name: member for name, member in self.participants.items() 
+        self.children = {name: member for name, member in self.members.items() 
             if member.age == "child" and member.enabled}
 
     def update_config_file(self):
         """Updates the json file"""
         
-        for k, member in self.participants.items():
+        self.members_raw = OrderedDict()
+        for k, member in self.members.items():
+            self.members_raw[k] = OrderedDict()
             for attr in list(vars(member).keys()):
-                self.participants_raw[k][attr] = eval(f'member.{attr}')
+                self.members_raw[k][attr] = eval(f'member.{attr}')
 
-        output = json.dumps(self.participants_raw, indent=2)
+        output = json.dumps(self.members_raw, indent=2)
 
         with open("config.json", "w") as f:
             f.write(output)

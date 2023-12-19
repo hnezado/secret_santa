@@ -2,9 +2,11 @@ import os
 import json
 import Pmw
 import logging as log
+from reportlab.graphics import renderPM
 from tkinter import *
 from tkinter import ttk
 from user_settings import *
+from config import Member
 
 
 class Interface:
@@ -44,6 +46,13 @@ class Interface:
         self.tip_lang_en = None
         self.tip_lang_es = None
         self.tip_lang_fr = None
+        ## Pop-ups
+        self.puadd_frame_data = None
+        self.puadd_frame_actions = None
+        self.puedit_frame_data = None
+        self.puedit_frame_actions = None
+        self.pudel_frame_data = None
+        self.pudel_frame_actions = None
 
         # Displayed text (language settings)
         self.lang = None
@@ -51,11 +60,14 @@ class Interface:
         self.update_lang()
         
         # Row selected
-        self.table_conf_sel = None
+        self.table_conf_sel = {
+            "row": None,
+            "member": None
+        }
         
         # Columns to display in each table
-        self.table_run_cols = ("participant", "assigned")
-        self.table_conf_cols = ("#0", "family_id", "participant", "age", "exceptions")
+        self.table_run_cols = ("member", "assigned")
+        self.table_conf_cols = ("#0", "family_id", "member", "age", "exceptions")
 
         # Windows
         self.root = Tk()
@@ -65,8 +77,13 @@ class Interface:
             "pos": (0, 0)
         }
         self.set_root()
-        self.popup_edit = None
+        self.popup = None
 
+        # Style
+        self.grid_param = self.get_grid_param()
+        self.style_static = self.get_style_static()
+        self.style_dynamic = self.get_style_dynamic()
+        
         # Data
         self.img = {
             "add": PhotoImage(file="./images/add.png"),
@@ -80,11 +97,6 @@ class Interface:
             "wip": PhotoImage(file="./images/wip.png")
         }
         self.table_run_data = {}
-
-        # Style
-        self.grid_param = self.get_grid_param()
-        self.style_static = self.get_style_static()
-        self.style_dynamic = self.get_style_dynamic()
 
         # Columns & rows
         self.run_col_width = (self.fixed_win["dim"][0] - 2 * (self.style_static["settings"]["TNotebook"]["configure"]["padding"][0] + self.style_static["settings"]["TFrame"]["configure"]["padding"][0])) // len(self.table_run_cols) - 3
@@ -387,8 +399,8 @@ class Interface:
         )
         self.btn_conf_add = ttk.Button(
             self.frame_conf_act,
-            command=self.action_add_member,
-            style="Add.TButton",
+            command=self.action_add,
+            style="ActionConf.TButton",
             takefocus=False
         )
         self.btn_conf_add.grid(
@@ -400,8 +412,8 @@ class Interface:
         )
         self.btn_conf_edit = ttk.Button(
             self.frame_conf_act,
-            command=self.action_edit_member,
-            style="Edit.TButton",
+            command=self.action_edit,
+            style="ActionConf.TButton",
             takefocus=False
         )
         self.btn_conf_edit.grid(
@@ -413,8 +425,8 @@ class Interface:
         )
         self.btn_conf_del = ttk.Button(
             self.frame_conf_act,
-            command=self.action_del_member,
-            style="Del.TButton",
+            command=self.action_del,
+            style="ActionConf.TButton",
             takefocus=False
         )
         self.btn_conf_del.grid(
@@ -445,7 +457,7 @@ class Interface:
             background="#C7DEB1"
         )
         self.table_conf.tag_configure(
-            "selected",
+            "select",
             background="#478ADD"
         )
 
@@ -456,9 +468,9 @@ class Interface:
         
         self.notebook.tab(self.tab_conf, text=self.disp_txt["conf"])
         self.btn_conf_open_config_file.configure(text=self.disp_txt["btn"]["open_config"])
-        self.btn_conf_add.configure(image=self.img["add"])
-        self.btn_conf_edit.configure(image=self.img["edit"])
-        self.btn_conf_del.configure(image=self.img["del"])
+        self.btn_conf_add.configure(text="+")
+        self.btn_conf_edit.configure(text="Y")
+        self.btn_conf_del.configure(text="-")
         
         # Tooltips
         self.tip_add = Pmw.Balloon(self.root)
@@ -496,11 +508,11 @@ class Interface:
                 )
         
         self.empty_table(self.table_conf)
-        self.logic.read_participants()
-        self.logic.parse_participants()
-        for i, member in enumerate(self.logic.participants.values()):
-            if self.table_conf_sel == i:
-                tags = "selected"
+        self.logic.read_members()
+        self.logic.parse_members()
+        for i, member in enumerate(self.logic.members.values()):
+            if self.table_conf_sel["row"] == i:
+                tags = "select"
             else:
                 tags = ("evenrow" if i % 2 == 0 else "oddrow")
             img = self.img["checked"] if member.enabled else self.img["unchecked"]
@@ -685,84 +697,355 @@ class Interface:
     def action_run(self) -> None:
         """Retrieves the randomized paired data"""
         
-        self.table_run_data = self.logic.run()
-        self.update_tab_run()
+        if not self.popup:
+            self.table_run_data = self.logic.run()
+            self.update_tab_run()
 
     def action_clear(self) -> None:
         """Clears the retrieved data and the treeview"""
         
-        self.table_run_data.clear()
-        self.update_tab_run()
+        if not self.popup:
+            self.table_run_data.clear()
+            self.update_tab_run()
 
     def action_open_config_file(self) -> None:
         """Opens the configuration file"""
         
-        os.system("notepad.exe " + self.uset.user_settings["input_file"])
-
-    def action_add_member(self) -> None:
-        """Adds a new member to the config file"""
-        
-        print("Adding new member!")
-        self.update_tab_conf()
-    
-    def action_edit_member(self) -> None:
-        """Edits an existing member from the config file"""
-        
-        if self.table_conf_sel is not None:
-            self.edit_member(list(self.logic.participants.values())[self.table_conf_sel])
-            self.update_tab_conf()
-
-    def action_del_member(self) -> None:
-        """Deletes an existing member from the config file"""
-        
-        print("Deleting member!")
-        self.update_tab_conf()
+        if not self.popup:
+            os.system("notepad.exe " + self.uset.user_settings["input_file"])
 
     def action_open_style_sett_file(self) -> None:
         """Opens the style settings file"""
         
-        os.system("notepad.exe " + self.uset.user_settings["style"])
+        if not self.popup:
+            os.system("notepad.exe " + self.uset.user_settings["style"])
 
-    def action_swap_check(self, row: int) -> None:
+    def action_swap_check(self, member: object) -> None:
         """Swaps the member status (enabled, disabled)"""
-        
-        member = list(self.logic.participants.keys())[row]
-        self.logic.participants[member].enabled = not self.logic.participants[member].enabled
+
+        self.logic.members[member.name.lower()].enabled = not self.logic.members[member.name.lower()].enabled
 
     def action_swap_lang_en(self) -> None:
         """Swaps and updates the language to english"""
         
-        self.update_lang("en")
-        self.update_tab_run()
-        self.update_tab_conf()
-        self.update_tab_pref()
+        if not self.popup:
+            self.update_lang("en")
+            self.update_tab_run()
+            self.update_tab_conf()
+            self.update_tab_pref()
     
     def action_swap_lang_es(self) -> None:
         """Swaps and updates the language to spanish"""
         
-        self.update_lang("es")
-        self.update_tab_run()
-        self.update_tab_conf()
-        self.update_tab_pref()
+        if not self.popup:
+            self.update_lang("es")
+            self.update_tab_run()
+            self.update_tab_conf()
+            self.update_tab_pref()
     
     def action_swap_lang_fr(self) -> None:
         """Swaps and updates the language to french"""
         
-        self.update_lang("fr")
-        self.update_tab_run()
+        if not self.popup:
+            self.update_lang("fr")
+            self.update_tab_run()
+            self.update_tab_conf()
+            self.update_tab_pref()
+
+    def action_add(self) -> None:
+        """Adds a new member to the config file"""
+        
+        if not self.popup:
+            self.popup_open_add()
+            self.update_tab_conf()
+    
+    def action_edit(self) -> None:
+        """Edits an existing member from the config file"""
+        
+        if not self.popup:
+            if self.table_conf_sel["member"] is not None:
+                self.popup_open_edit(self.table_conf_sel["member"])
+                self.update_tab_conf()
+
+    def action_del(self) -> None:
+        """Deletes an existing member from the config file"""
+        
+        if not self.popup:
+            if self.table_conf_sel["member"] is not None:
+                self.popup_open_del(self.table_conf_sel["member"])
+                self.update_tab_conf()
+    
+    def action_puadd_confirm(self) -> None:
+        """Confirms (inserts) the adding member action"""
+        
+        print(f'Adding new member data!')
+    
+    def action_puedit_confirm(self) -> None:
+        """Confirms (overrides) the editing member data action"""
+    
+        print(f'Overriding member data from: {self.table_conf_sel["member"]}!')
+
+    def action_pudel_confirm(self) -> None:
+        """Confirms the member deletion action"""
+        
+        self.logic.del_member(self.table_conf_sel["member"])
+        self.remove_conf_sel()
+        self.popup_close()
         self.update_tab_conf()
-        self.update_tab_pref()
 
-    def action_save_edit(self) -> None:
-        """Saves changes made in the editing popup"""
-        
-        print("Saving!")
+    def popup_open_add(self) -> None:
+        """Opens a pop-up window allowing the data entry of a new member"""
 
-    def action_cancel_edit(self) -> None:
-        """Cancels and closes the editing popup"""
+        # Popup window
+        try:
+            self.popup_close()
+        except:
+            pass
+        self.popup = Toplevel()
+        self.popup.rowconfigure(0, weight=90)
+        self.popup.rowconfigure(1, weight=10)
+        self.popup.columnconfigure(0, weight=100)
         
-        self.popup_edit.destroy()
-        self.popup_edit.update()
+        # Frames
+        self.puadd_frame_data = Frame(self.popup)
+        # [frame_data.rowconfigure(i, weight=100//len(member_attrs)) for i in range(len(member_attrs))]
+        self.puadd_frame_data.columnconfigure(0, weight=30)
+        self.puadd_frame_data.columnconfigure(1, weight=70)
+        self.puadd_frame_data.grid(
+            row=0,
+            column=0,
+            sticky=NSEW
+        )
+        self.puadd_frame_actions = Frame(self.popup)
+        self.puadd_frame_actions.rowconfigure(0, weight=100)
+        self.puadd_frame_actions.columnconfigure(0, weight=50)
+        self.puadd_frame_actions.columnconfigure(1, weight=50)
+        self.puadd_frame_actions.grid(
+            row=1,
+            column=0,
+            sticky=NSEW
+        )
+        
+        # Buttons
+        btn_confirm = Button(
+            self.puadd_frame_actions,
+            text="Confirm",
+            command=self.action_puadd_confirm
+        )
+        btn_confirm.grid(
+            row=1,
+            column=0,
+            sticky=NSEW
+        )
+        btn_cancel = Button(
+            self.puadd_frame_actions,
+            text="Cancel",
+            command=self.popup_close
+        )
+        btn_cancel.grid(
+            row=1,
+            column=1,
+            sticky=NSEW
+        )
+
+        self.popup.protocol("WM_DELETE_WINDOW", self.popup_close)
+        self.popup_upd_add()
+
+    def popup_upd_add(self) -> None:
+        """Updates the new member data addition pop-up"""
+        
+        for i, param in enumerate(self.logic.member_attrs):
+            label = Label(self.puadd_frame_data, height=1, text=f'{param}: '.title())
+            label.grid(row=i, column=0, sticky="NSW")
+            text_box = Text(self.puadd_frame_data, height=1)
+            text_box.grid(row=i, column=1, sticky=NSEW)
+
+        self.popup_set_geometry(self.popup)
+
+    def popup_open_edit(self, member):
+        """Opens a pop-up window allowing the selected member data edition"""
+        # TODO Pendiente de añadir languages a los botones (y labels?)
+        
+        member_attrs = vars(member)
+        
+        # Popup window
+        try:
+            self.popup_close()
+        except:
+            pass
+        self.popup = Toplevel()
+        self.popup.rowconfigure(0, weight=90)
+        self.popup.rowconfigure(1, weight=10)
+        self.popup.columnconfigure(0, weight=100)
+        
+        # Frames
+        self.puedit_frame_data = Frame(self.popup)
+        [self.puedit_frame_data.rowconfigure(i, weight=100//len(member_attrs)) for i in range(len(member_attrs))]
+        self.puedit_frame_data.columnconfigure(0, weight=100)
+        self.puedit_frame_data.grid(
+            row=0,
+            column=0,
+            sticky=NSEW
+        )
+        self.puedit_frame_actions = Frame(self.popup)
+        self.puedit_frame_actions.rowconfigure(0, weight=100)
+        self.puedit_frame_actions.columnconfigure(0, weight=50)
+        self.puedit_frame_actions.columnconfigure(1, weight=50)
+        self.puedit_frame_actions.grid(
+            row=1,
+            column=0,
+            sticky=NSEW
+        )
+        
+        # Member data
+        for attr_index, (attr_name, attr_value) in enumerate(member_attrs.items()):
+            frame_attr = Frame(self.puedit_frame_data)
+            frame_attr.columnconfigure(0, weight=20)
+            frame_attr.columnconfigure(1, weight=80)
+            if type(attr_value) == list:
+                if len(attr_value) > 0:
+                    for row_index in range(len(attr_value)):
+                        frame_attr.rowconfigure(row_index, weight=100//len(attr_value))
+                else:
+                    frame_attr.rowconfigure(0, weight=100)
+                frame_attr.grid(row=attr_index, column=0, sticky=NSEW)
+                label = Label(frame_attr, height=1, text=f'{attr_name}: '.title())
+                label.grid(row=0, column=0, sticky="NSW")
+                for row_index, attr_element in enumerate(attr_value):
+                    text_box = Text(frame_attr, height=1)
+                    text_box.grid(row=row_index, column=1, sticky=NSEW)
+                    text_box.insert("end", attr_element)
+            else:
+                frame_attr.rowconfigure(0, weight=100)
+                frame_attr.grid(row=attr_index, column=0, sticky=NSEW)
+                label = Label(frame_attr, height=1, text=f'{attr_name}: '.title())
+                label.grid(row=0, column=0, sticky="NSW")
+                text_box = Text(frame_attr, height=1)
+                text_box.grid(row=0, column=1, sticky=NSEW)
+                text_box.insert("end", attr_value)
+        
+        # Buttons
+        btn_save = Button(
+            self.puedit_frame_actions,
+            text="Save",
+            command=self.action_puedit_confirm
+        )
+        btn_save.grid(
+            row=1,
+            column=0,
+            sticky=NSEW
+        )
+        btn_cancel = Button(
+            self.puedit_frame_actions,
+            text="Cancel",
+            command=self.popup_close
+        )
+        btn_cancel.grid(
+            row=1,
+            column=1,
+            sticky=NSEW
+        )
+        
+        self.popup.protocol("WM_DELETE_WINDOW", self.popup_close)
+        self.popup_upd_edit()
+
+    # TODO pendiente update edit pop-up
+    def popup_upd_edit(self) -> None:
+        """Updates the member data edition pop-up"""
+
+        self.popup_set_geometry(self.popup)
+
+    def popup_open_del(self, member) -> None:
+        """Opens a pop-up window to allow deletion of the selected member"""
+
+        # Popup window
+        try:
+            self.popup_close()
+        except:
+            pass
+        self.popup = Toplevel()
+        self.popup.rowconfigure(0, weight=50)
+        self.popup.rowconfigure(1, weight=50)
+        self.popup.columnconfigure(0, weight=100)
+
+        # Frames
+        self.pudel_frame_data = Frame(self.popup)
+        self.pudel_frame_data.rowconfigure(0, weight=100)
+        self.pudel_frame_data.columnconfigure(0, weight=100)
+        self.pudel_frame_data.grid(
+            row=0,
+            column=0,
+            sticky=NSEW
+        )
+        self.pudel_frame_actions = Frame(self.popup)
+        self.pudel_frame_actions.rowconfigure(0, weight=100)
+        self.pudel_frame_actions.columnconfigure(0, weight=50)
+        self.pudel_frame_actions.columnconfigure(1, weight=50)
+        self.pudel_frame_actions.grid(
+            row=1,
+            column=0,
+            sticky=NSEW
+        )
+        
+        # Label
+        label_confirm = Label(
+            self.pudel_frame_data,
+            height=3,
+            text=f'Do you want to delete the selected member: "{member.name}"?'
+        )
+        label_confirm.grid(
+            row=0,
+            column=1,
+            sticky=NSEW
+        )
+        
+        # Buttons
+        btn_confirm = Button(
+            self.pudel_frame_actions,
+            text="Accept",
+            command=self.action_pudel_confirm
+        )
+        btn_confirm.grid(
+            row=0,
+            column=0,
+            sticky=NSEW
+        )
+        btn_cancel = Button(
+            self.pudel_frame_actions,
+            text="Cancel",
+            command=self.popup_close
+        )
+        btn_cancel.grid(
+            row=0,
+            column=1,
+            sticky=NSEW
+        )
+        
+        self.popup.protocol("WM_DELETE_WINDOW", self.popup_close)
+        self.popup_upd_del()
+        
+    # TODO pendiente update del pop-up
+    def popup_upd_del(self) -> None:
+        """Updates the member data deletion pop-up"""
+        
+        self.popup_set_geometry(self.popup)
+        
+    def popup_set_geometry(self, popup) -> None:
+        """Calculates the pop-up geometry centering it"""
+        
+        # Calculate popup window geometry
+        popup.update()
+        popup_w = popup.winfo_width()
+        popup_h = popup.winfo_height()
+        popup_x = self.root.winfo_screenwidth() // 2 - (popup_w // 2)
+        popup_y = self.root.winfo_screenheight() // 2 - (popup_h // 2)
+        popup.geometry(f'{popup_w}x{popup_h}+{popup_x}+{popup_y}')
+
+    def popup_close(self) -> None:
+        """Closes the popup and sets some variables"""
+        
+        self.popup.destroy()
+        self.popup = None
 
     @staticmethod
     def disable_resizing(_) -> str:
@@ -773,120 +1056,41 @@ class Interface:
     def on_click_config(self, event: Event) -> str | None:
         """Called on click event"""
         
-        region = self.table_conf.identify("region", event.x, event.y)
-        if region == "separator":
-            return self.disable_resizing(event)
-        elif region == "tree" or region == "cell":
-            try:
-                row = int(self.table_conf.identify_row(event.y))
-                col = int(self.table_conf.identify_column(event.x)[1:])
-                if col == 0:
-                    self.action_swap_check(row)
-                    self.logic.update_config_file()
-                    self.update_tab_conf()
-                else:
-                    self.table_conf_sel = row if self.table_conf_sel != row else None
-                    print(self.table_conf_sel)
-                    self.update_tab_conf()
-            except:
-                log.error("Cell coordinates cannot be calculated")
+        if not self.popup:
+            region = self.table_conf.identify("region", event.x, event.y)
+            if region == "separator":
+                return self.disable_resizing(event)
+            elif region == "tree" or region == "cell":
+                try:
+                    row = int(self.table_conf.identify_row(event.y))
+                    col = int(self.table_conf.identify_column(event.x)[1:])
+                    try:
+                        member = list(self.logic.members.values())[row]
+                    except Exception:
+                        log.error(f'The member with index "{row}" cannot be found')
+                    if col == 0:
+                        self.action_swap_check(member)
+                        self.logic.update_config_file()
+                        self.update_tab_conf()
+                    else:
+                        if self.table_conf_sel["row"] == row:
+                            self.remove_conf_sel()
+                        else:
+                            self.table_conf_sel["row"] = row
+                            self.table_conf_sel["member"] = member
+                        self.update_tab_conf()
+                except Exception:
+                    log.error("Cell coordinates cannot be calculated")
 
-    def edit_member(self, member):
-        """Opens a window where member data can be edited"""
-        # TODO Pendiente de añadir languages a los botones (y labels?)
-        
-        member_attrs = vars(member)
-        
-        # Popup window
-        try:
-            self.popup_edit.destroy()
-        except:
-            pass
-        self.popup_edit = Toplevel()
-        self.popup_edit.rowconfigure(0, weight=90)
-        self.popup_edit.rowconfigure(1, weight=10)
-        self.popup_edit.columnconfigure(0, weight=100)
-        
-        ## Frames
-        frame_data = Frame(self.popup_edit)
-        [frame_data.rowconfigure(i, weight=100//len(member_attrs)) for i in range(len(member_attrs))]
-        frame_data.columnconfigure(0, weight=100)
-        frame_data.grid(
-            row=0,
-            column=0,
-            sticky=NSEW
-        )
-        frame_actions = Frame(self.popup_edit)
-        frame_actions.rowconfigure(0, weight=100)
-        frame_actions.columnconfigure(0, weight=50)
-        frame_actions.columnconfigure(1, weight=50)
-        frame_actions.grid(
-            row=1,
-            column=0,
-            sticky=NSEW
-        )
-        
-        # Member data
-        for attr_index, (attr_name, attr_value) in enumerate(member_attrs.items()):
-            frame_attr = Frame(frame_data)
-            frame_attr.columnconfigure(0, weight=20)
-            frame_attr.columnconfigure(1, weight=80)
-            if type(attr_value) == list:
-                if len(attr_value) > 0:
-                    for row_index in range(len(attr_value)):
-                        frame_attr.rowconfigure(row_index, weight=100//len(attr_value))
-                else:
-                    frame_attr.rowconfigure(0, weight=100)
-                frame_attr.grid(row=attr_index, column=0, sticky=NSEW)
-                label_box = Label(frame_attr, height=1, text=f'{attr_name}: '.title())
-                label_box.grid(row=0, column=0, sticky="NSW")
-                for row_index, attr_element in enumerate(attr_value):
-                    text_box = Text(frame_attr, height=1)
-                    text_box.grid(row=row_index, column=1, sticky=NSEW)
-                    text_box.insert("end", attr_element)
-            else:
-                frame_attr.rowconfigure(0, weight=100)
-                frame_attr.grid(row=attr_index, column=0, sticky=NSEW)
-                label_box = Label(frame_attr, height=1, text=f'{attr_name}: '.title())
-                label_box.grid(row=0, column=0, sticky="NSW")
-                text_box = Text(frame_attr, height=1)
-                text_box.grid(row=0, column=1, sticky=NSEW)
-                text_box.insert("end", attr_value)
-        
-        ## Buttons
-        btn_save = Button(
-            frame_actions,
-            text="Save",
-            command=self.action_save_edit
-        )
-        btn_save.grid(
-            row=1,
-            column=0,
-            sticky=NSEW
-        )
-        btn_cancel = Button(
-            frame_actions,
-            text="Cancel",
-            command=self.action_cancel_edit
-        )
-        btn_cancel.grid(
-            row=1,
-            column=1,
-            sticky=NSEW
-        )
-        
-        # Calculate popup window geometry
-        self.popup_edit.update()
-        popup_w = self.popup_edit.winfo_width()
-        popup_h = self.popup_edit.winfo_height()
-        popup_x = self.root.winfo_screenwidth() // 2 - (popup_w // 2)
-        popup_y = self.root.winfo_screenheight() // 2 - (popup_h // 2)
-        self.popup_edit.geometry(f'{popup_w}x{popup_h}+{popup_x}+{popup_y}')
-        
+    def remove_conf_sel(self) -> None:
+        """Removes the current selection in the config treeview"""
+    
+        self.table_conf_sel["row"] = None
+        self.table_conf_sel["member"] = None
+
     def display(self) -> None:
         """Main interface"""
         
         self.table_run.bind("<Button-1>", self.disable_resizing)
         self.table_conf.bind("<Button-1>", self.on_click_config)
-        self.table_conf.bind("sel_row")
         self.root.mainloop()

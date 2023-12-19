@@ -21,6 +21,9 @@ def main():
 if __name__ == "__main__":
     main()
 
-# TODO Añadir funcionalidad: botones (new, delete) que funcionen con la selección de fila actual en el treeview
-# TODO Plantear cambiar iconos por "iconos" en fuentes. Cambios de color/tamaño dinámicos
+# TODO Añadir funcionalidad: botones (new) que funcionen con la selección de fila actual en el treeview
 # TODO implementar una pestaña nueva de "Ayuda / (?)" que explique cómo usar el programa
+# TODO Configurar labels y text_boxes en popups (custom languages)
+#   Necesitaría "popup_upd_add/edit/del") con label.configure(text="path/de/language")...
+# TODO Quitar OrdDicts si es posible
+#   Convertir/update los OrderedDict a zip(logic.member_attrs, values)
