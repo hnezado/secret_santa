@@ -2,7 +2,6 @@ import os
 import json
 import Pmw
 import logging as log
-from reportlab.graphics import renderPM
 from tkinter import *
 from tkinter import ttk
 from user_settings import *
@@ -46,6 +45,8 @@ class Interface:
         self.tip_lang_en = None
         self.tip_lang_es = None
         self.tip_lang_fr = None
+        ## HELP
+        self.tab_help = None
         ## Pop-ups
         self.puadd_frame_data = None
         self.puadd_frame_actions = None
@@ -210,6 +211,7 @@ class Interface:
         self.create_tab_run()
         self.create_tab_conf()
         self.create_tab_pref()
+        self.create_tab_help()
         self.notebook.grid(
             row=0,
             column=0,
@@ -541,7 +543,7 @@ class Interface:
             self.table_conf_last_index += 1
 
     def create_tab_pref(self) -> None:
-        """Creates de PREFERENCES tab"""
+        """Creates the PREFERENCES tab"""
         
         # Frame preferences
         self.tab_pref = ttk.Frame(
@@ -688,6 +690,35 @@ class Interface:
         self.tip_lang_fr = Pmw.Balloon(self.root)
         self.tip_lang_fr.bind(self.btn_pref_lang_fr, self.disp_txt["btn"]["lang_fr"])
 
+    def create_tab_help(self) -> None:
+        """Creates the HELP tab"""
+
+        # Frame preferences
+        self.tab_help = ttk.Frame(
+            self.notebook,
+            style="Help.TFrame"
+        )
+        self.tab_help.rowconfigure(0, weight=100)
+        self.tab_help.columnconfigure(0, weight=100)
+
+        self.tab_help.grid(
+            row=0,
+            column=0,
+            sticky=NSEW,
+            # padx=self.grid_param["padding"]["tab_help"][0],
+            # pady=self.grid_param["padding"]["tab_help"][1]
+        )
+        self.notebook.add(
+            self.tab_help
+        )
+
+        self.update_tab_help()
+
+    def update_tab_help(self) -> None:
+        """Updates the HELP tab and its components"""
+
+        self.notebook.tab(self.tab_help, text="?")
+
     def empty_table(self, table: ttk.Treeview) -> None:
         """Empties the config table and resets its index"""
         
@@ -777,9 +808,25 @@ class Interface:
     
     def action_puadd_confirm(self) -> None:
         """Confirms (inserts) the adding member action"""
-        
-        print(f'Adding new member data!')
-    
+
+        retrieved_info = {}
+        widgets = self.puadd_frame_data.winfo_children()
+        labels = [wg for wg in widgets if wg.winfo_class() == "Label"]
+        entries = [wg for wg in widgets if wg.winfo_class() == "Entry"]
+        exceptions = []
+        for i in range(len(labels)):
+            try:
+                key = labels[i]["text"].split(":")[0].lower()
+                if key == "exceptions":
+                    exceptions.append(entries[i].get())
+                else:
+                    value = entries[i].get()
+                    retrieved_info[key] = value
+            except IndexError:
+                exceptions.append(entries[i].get())
+        if labels[-1]["text"].split(":")[0].lower() == "exceptions":
+            retrieved_info[labels[-1]["text"].split(":")[0].lower()] = exceptions
+
     def action_puedit_confirm(self) -> None:
         """Confirms (overrides) the editing member data action"""
     
@@ -857,8 +904,10 @@ class Interface:
         for i, param in enumerate(self.logic.member_attrs):
             label = Label(self.puadd_frame_data, height=1, text=f'{param}: '.title())
             label.grid(row=i, column=0, sticky="NSW")
-            text_box = Text(self.puadd_frame_data, height=1)
-            text_box.grid(row=i, column=1, sticky=NSEW)
+            entry_box = Entry(self.puadd_frame_data)
+            entry_box.grid(row=i, column=1, sticky=NSEW)
+            # text_box = Text(self.puadd_frame_data, height=1)
+            # text_box.grid(row=i, column=1, sticky=NSEW)
 
         self.popup_set_geometry(self.popup)
 
