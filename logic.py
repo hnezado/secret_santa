@@ -9,7 +9,7 @@ from config import Member
 
 class Logic:
     def __init__(self):
-        self.member_attrs = ["enabled", "name", "family_id", "adult", "exceptions"]
+        self.member_attrs = ["enabled", "family_id", "name", "adult", "exceptions"]
         self.members_raw = None
         self.members_names = None
         self.members = None

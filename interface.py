@@ -54,6 +54,9 @@ class Interface:
         self.puedit_frame_actions = None
         self.pudel_frame_data = None
         self.pudel_frame_actions = None
+        self.puadd_wgs = []
+        self.puedit_wgs = []
+        self.pudel_wgs = []
 
         # Displayed text (language settings)
         self.lang = None
@@ -487,7 +490,7 @@ class Interface:
             if i == 0:
                 self.table_conf.heading(
                     v,
-                    text=self.disp_txt["tab_conf_table_headings"][i],
+                    text=self.disp_txt["member_attrs"][i],
                     anchor=CENTER
                 )
                 self.table_conf.column(
@@ -499,7 +502,7 @@ class Interface:
             else:
                 self.table_conf.heading(
                     v,
-                    text=self.disp_txt["tab_conf_table_headings"][i],
+                    text=self.disp_txt["member_attrs"][i],
                     anchor=CENTER
                 )
                 self.table_conf.column(
@@ -787,7 +790,7 @@ class Interface:
         """Adds a new member to the config file"""
         
         if not self.popup:
-            self.popup_open_add()
+            self.puadd_create()
             self.update_tab_conf()
     
     def action_edit(self) -> None:
@@ -795,7 +798,7 @@ class Interface:
         
         if not self.popup:
             if self.table_conf_sel["member"] is not None:
-                self.popup_open_edit(self.table_conf_sel["member"])
+                self.puedit_create(self.table_conf_sel["member"])
                 self.update_tab_conf()
 
     def action_del(self) -> None:
@@ -803,49 +806,51 @@ class Interface:
         
         if not self.popup:
             if self.table_conf_sel["member"] is not None:
-                self.popup_open_del(self.table_conf_sel["member"])
+                self.pudel_create(self.table_conf_sel["member"])
                 self.update_tab_conf()
     
-    def action_puadd_confirm(self) -> None:
+    def action_puadd_member_confirm(self) -> None:
         """Confirms (inserts) the adding member action"""
 
         retrieved_info = {}
         widgets = self.puadd_frame_data.winfo_children()
-        labels = [wg for wg in widgets if wg.winfo_class() == "Label"]
-        entries = [wg for wg in widgets if wg.winfo_class() == "Entry"]
+        labels = [wg for wg in widgets if isinstance(wg, Label)]
+        entries = [wg for wg in widgets if isinstance(wg, Entry)]
         exceptions = []
-        for i in range(len(labels)):
-            try:
-                key = labels[i]["text"].split(":")[0].lower()
-                if key == "exceptions":
-                    exceptions.append(entries[i].get())
-                else:
-                    value = entries[i].get()
-                    retrieved_info[key] = value
-            except IndexError:
-                exceptions.append(entries[i].get())
-        if labels[-1]["text"].split(":")[0].lower() == "exceptions":
-            retrieved_info[labels[-1]["text"].split(":")[0].lower()] = exceptions
+        for i in range(len(entries)):
+            value = entries[i].get()
+            if value:
+                try:
+                    key = self.logic.member_attrs[i]
+                    if key == "exceptions":
+                        exceptions.append(value)
+                    else:
+                        retrieved_info[key] = value
+                except IndexError:
+                    exceptions.append(value)
+        if exceptions:
+            retrieved_info["exceptions"] = exceptions
+        print(retrieved_info)
 
-    def action_puedit_confirm(self) -> None:
+    def action_puedit_member_confirm(self) -> None:
         """Confirms (overrides) the editing member data action"""
     
         print(f'Overriding member data from: {self.table_conf_sel["member"]}!')
 
-    def action_pudel_confirm(self) -> None:
+    def action_pudel_member_confirm(self) -> None:
         """Confirms the member deletion action"""
         
         self.logic.del_member(self.table_conf_sel["member"])
         self.remove_conf_sel()
-        self.popup_close()
+        self.pu_close()
         self.update_tab_conf()
 
-    def popup_open_add(self) -> None:
-        """Opens a pop-up window allowing the data entry of a new member"""
+    def puadd_create(self) -> None:
+        """Creates a pop-up window allowing the data entry of a new member"""
 
         # Popup window
         try:
-            self.popup_close()
+            self.pu_close()
         except:
             pass
         self.popup = Toplevel()
@@ -855,9 +860,11 @@ class Interface:
         
         # Frames
         self.puadd_frame_data = Frame(self.popup)
-        # [frame_data.rowconfigure(i, weight=100//len(member_attrs)) for i in range(len(member_attrs))]
+        # [self.puadd_frame_data.rowconfigure(i, weight=100//len(member_attrs)) for i in range(len(member_attrs))]
         self.puadd_frame_data.columnconfigure(0, weight=30)
-        self.puadd_frame_data.columnconfigure(1, weight=70)
+        self.puadd_frame_data.columnconfigure(1, weight=60)
+        self.puadd_frame_data.columnconfigure(1, weight=5)
+        self.puadd_frame_data.columnconfigure(1, weight=5)
         self.puadd_frame_data.grid(
             row=0,
             column=0,
@@ -872,12 +879,24 @@ class Interface:
             column=0,
             sticky=NSEW
         )
-        
+
+        # Data
+        for i, attr in enumerate(self.logic.member_attrs):
+            self.puadd_wgs.append(Label(self.puadd_frame_data, height=1))
+            self.puadd_wgs[-1].grid(row=i, column=0, sticky="NSW")
+            self.puadd_wgs.append(Entry(self.puadd_frame_data))
+            if attr == "exceptions":
+                self.puadd_wgs[-1].grid(row=i, column=1, columnspan=2, sticky=NSEW)
+                self.puadd_wgs.append(Button(self.puadd_frame_data, text="+", command=lambda: print("Adding new exception")))
+                self.puadd_wgs[-1].grid(row=i, column=3, sticky=NSEW)
+            else:
+                self.puadd_wgs[-1].grid(row=i, column=1, columnspan=3, sticky=NSEW)
+
         # Buttons
         btn_confirm = Button(
             self.puadd_frame_actions,
             text="Confirm",
-            command=self.action_puadd_confirm
+            command=self.action_puadd_member_confirm
         )
         btn_confirm.grid(
             row=1,
@@ -887,7 +906,7 @@ class Interface:
         btn_cancel = Button(
             self.puadd_frame_actions,
             text="Cancel",
-            command=self.popup_close
+            command=self.pu_close
         )
         btn_cancel.grid(
             row=1,
@@ -895,31 +914,73 @@ class Interface:
             sticky=NSEW
         )
 
-        self.popup.protocol("WM_DELETE_WINDOW", self.popup_close)
-        self.popup_upd_add()
+        self.popup.protocol("WM_DELETE_WINDOW", self.pu_close)
+        self.puadd_upd()
 
-    def popup_upd_add(self) -> None:
+    def puadd_upd(self) -> None:
         """Updates the new member data addition pop-up"""
-        
-        for i, param in enumerate(self.logic.member_attrs):
-            label = Label(self.puadd_frame_data, height=1, text=f'{param}: '.title())
-            label.grid(row=i, column=0, sticky="NSW")
-            entry_box = Entry(self.puadd_frame_data)
-            entry_box.grid(row=i, column=1, sticky=NSEW)
-            # text_box = Text(self.puadd_frame_data, height=1)
-            # text_box.grid(row=i, column=1, sticky=NSEW)
 
-        self.popup_set_geometry(self.popup)
+        # self.label_pref_lang.configure(text=self.disp_txt["label"]["lang"])
 
-    def popup_open_edit(self, member):
-        """Opens a pop-up window allowing the selected member data edition"""
+        # def add_entry(index, label_incl=False):
+        #     """Adds a new entry line"""
+        #
+        #     if label_incl:
+        #         label = Label(
+        #             self.puadd_frame_data,
+        #             height=1,
+        #             text=f'{wg}: '.title()
+        #         )
+        #         label.grid(row=index, column=0, sticky="NSW")
+        #         entry_box = Entry(self.puadd_frame_data)
+        #         entry_box.grid(row=index, column=1, columnspan=2, sticky=NSEW)
+        #         btn_add_entry = Button(
+        #             self.puadd_frame_data,
+        #             text="+",
+        #             command=lambda: print("adding entry!")
+        #         )
+        #         btn_add_entry.grid(row=index, column=3, sticky=NSEW)
+        #     else:
+        #         entry_box = Entry(self.puadd_frame_data)
+        #         entry_box.grid(row=index, column=1, sticky=NSEW)
+        #         btn_add_entry = Button(
+        #             self.puadd_frame_data,
+        #             text="+",
+        #             command=lambda: print("adding entry!")
+        #         )
+        #         btn_add_entry.grid(row=index, column=2, sticky=NSEW)
+        #         btn_add_entry = Button(
+        #             self.puadd_frame_data,
+        #             text="-",
+        #             command=lambda: print("removing entry!")
+        #         )
+        #         btn_add_entry.grid(row=index, column=3, sticky=NSEW)
+
+        labels = [lb for lb in self.puadd_wgs if isinstance(lb, Label)]
+        for i, label in enumerate(labels):
+            label.configure(text=f'{self.disp_txt["member_attrs"][i]}')
+            # label = Label(self.puadd_frame_data, height=1, text=f'{wg}: '.title())
+            # label.grid(row=i, column=0, sticky="NSW")
+            # entry_box = Entry(self.puadd_frame_data)
+            # if self.logic.member_attrs[i] == "exceptions":
+            #     add_entry(i, label_incl=True)
+            # else:
+            #     entry_box.grid(row=i, column=1, columnspan=3, sticky=NSEW)
+
+        # entry_box = Entry(self.puadd_frame_data)
+        # entry_box.grid(row=len(self.logic.member_attrs), column=1, sticky=NSEW)
+
+        self.pu_set_geometry(self.popup)
+
+    def puedit_create(self, member):
+        """Creates a pop-up window allowing the selected member data edition"""
         # TODO Pendiente de añadir languages a los botones (y labels?)
         
         member_attrs = vars(member)
         
         # Popup window
         try:
-            self.popup_close()
+            self.pu_close()
         except:
             pass
         self.popup = Toplevel()
@@ -977,7 +1038,7 @@ class Interface:
         btn_save = Button(
             self.puedit_frame_actions,
             text="Save",
-            command=self.action_puedit_confirm
+            command=self.action_puedit_member_confirm
         )
         btn_save.grid(
             row=1,
@@ -987,7 +1048,7 @@ class Interface:
         btn_cancel = Button(
             self.puedit_frame_actions,
             text="Cancel",
-            command=self.popup_close
+            command=self.pu_close
         )
         btn_cancel.grid(
             row=1,
@@ -995,21 +1056,21 @@ class Interface:
             sticky=NSEW
         )
         
-        self.popup.protocol("WM_DELETE_WINDOW", self.popup_close)
-        self.popup_upd_edit()
+        self.popup.protocol("WM_DELETE_WINDOW", self.pu_close)
+        self.puedit_upd()
 
     # TODO pendiente update edit pop-up
-    def popup_upd_edit(self) -> None:
+    def puedit_upd(self) -> None:
         """Updates the member data edition pop-up"""
 
-        self.popup_set_geometry(self.popup)
+        self.pu_set_geometry(self.popup)
 
-    def popup_open_del(self, member) -> None:
-        """Opens a pop-up window to allow deletion of the selected member"""
+    def pudel_create(self, member) -> None:
+        """Creates a pop-up window to allow deletion of the selected member"""
 
         # Popup window
         try:
-            self.popup_close()
+            self.pu_close()
         except:
             pass
         self.popup = Toplevel()
@@ -1052,7 +1113,7 @@ class Interface:
         btn_confirm = Button(
             self.pudel_frame_actions,
             text="Accept",
-            command=self.action_pudel_confirm
+            command=self.action_pudel_member_confirm
         )
         btn_confirm.grid(
             row=0,
@@ -1062,7 +1123,7 @@ class Interface:
         btn_cancel = Button(
             self.pudel_frame_actions,
             text="Cancel",
-            command=self.popup_close
+            command=self.pu_close
         )
         btn_cancel.grid(
             row=0,
@@ -1070,16 +1131,16 @@ class Interface:
             sticky=NSEW
         )
         
-        self.popup.protocol("WM_DELETE_WINDOW", self.popup_close)
-        self.popup_upd_del()
+        self.popup.protocol("WM_DELETE_WINDOW", self.pu_close)
+        self.pudel_upd()
         
     # TODO pendiente update del pop-up
-    def popup_upd_del(self) -> None:
+    def pudel_upd(self) -> None:
         """Updates the member data deletion pop-up"""
         
-        self.popup_set_geometry(self.popup)
+        self.pu_set_geometry(self.popup)
         
-    def popup_set_geometry(self, popup) -> None:
+    def pu_set_geometry(self, popup) -> None:
         """Calculates the pop-up geometry centering it"""
         
         # Calculate popup window geometry
@@ -1090,11 +1151,12 @@ class Interface:
         popup_y = self.root.winfo_screenheight() // 2 - (popup_h // 2)
         popup.geometry(f'{popup_w}x{popup_h}+{popup_x}+{popup_y}')
 
-    def popup_close(self) -> None:
+    def pu_close(self) -> None:
         """Closes the popup and sets some variables"""
         
         self.popup.destroy()
         self.popup = None
+        self.puadd_wgs.clear()
 
     @staticmethod
     def disable_resizing(_) -> str:

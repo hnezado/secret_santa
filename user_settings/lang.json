@@ -23,7 +23,7 @@
             "Participant",
             "Assigned"
         ],
-        "tab_conf_table_headings": [
+        "member_attrs": [
             "Status",
             "Family ID",
             "Participant",
@@ -55,7 +55,7 @@
             "Participante",
             "Asignación"
         ],
-        "tab_conf_table_headings": [
+        "member_attrs": [
             "Estado",
             "Identificador de familia",
             "Participante",
@@ -87,7 +87,7 @@
             "Participant(e)",
             "Attribution"
         ],
-        "tab_conf_table_headings": [
+        "member_attrs": [
             "Status",
             "Identifiant de famille",
             "Participant(e)",
