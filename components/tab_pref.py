@@ -178,26 +178,26 @@ class Preferences:
     def action_open_style_sett_file(self) -> None:
         """Opens the style settings file"""
 
-        if not self.ui.popup:
+        if not self.ui.pu.popup:
             os.system("notepad.exe " + self.ui.uset.user_settings["style"])
 
     def action_swap_lang_en(self) -> None:
         """Swaps and updates the language to english"""
 
-        if not self.ui.popup:
+        if not self.ui.pu.popup:
             self.ui.update_lang("en")
         self.ui.update_tabs()
 
     def action_swap_lang_es(self) -> None:
         """Swaps and updates the language to spanish"""
 
-        if not self.ui.popup:
+        if not self.ui.pu.popup:
             self.ui.update_lang("es")
         self.ui.update_tabs()
 
     def action_swap_lang_fr(self) -> None:
         """Swaps and updates the language to french"""
 
-        if not self.ui.popup:
+        if not self.ui.pu.popup:
             self.ui.update_lang("fr")
         self.ui.update_tabs()

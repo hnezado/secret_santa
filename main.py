@@ -1,7 +1,7 @@
 import datetime as dt
 import logging as log
-from interface import Interface
-from logic import Logic
+from components.interface import Interface
+from components.logic import Logic
 
 # Logging configuration (./logs/...)
 log.basicConfig(

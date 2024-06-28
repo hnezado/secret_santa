@@ -1,6 +1,7 @@
 import json
 import logging as log
 
+
 class UserSettings:
     def __init__(self) -> None:
         self.user_settings = self.load_user_settings()
@@ -8,7 +9,7 @@ class UserSettings:
     def load_user_settings(self) -> dict:
         """Opens the user settings file"""
         
-        with open("./user_settings/user_settings.json") as f:
+        with open("user_settings/user_settings.json") as f:
             raw = f.read()
             sett = json.loads(raw)
         return self.parse_user_settings(sett)
@@ -23,7 +24,7 @@ class UserSettings:
                 log.critical(msg)
                 raise Exception(msg)
             if k == "style":
-                parsed_sett[k] = f'./user_settings/styles/{v}.json'
+                parsed_sett[k] = f'user_settings/styles/{v}.json'
             else:
                 parsed_sett[k] = v
         return parsed_sett
@@ -54,7 +55,7 @@ class UserSettings:
         
         unparsed_data = self.unparse_user_settings(self.user_settings)
         output = json.dumps(unparsed_data, indent=2)
-        with open ("./user_settings/user_settings.json", "w") as f:
+        with open ("user_settings/user_settings.json", "w") as f:
             f.write(output)
 
     def get_lang(self):

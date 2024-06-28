@@ -58,13 +58,13 @@ class Logic:
         with (open("data/data.json", "w") as f):
             json.dump(self.members, f, indent=2)
 
-    def get_member(self, member_name):
+    def get_member(self, member_name: str) -> OrderedDict:
         """Returns the full member dict by its name"""
 
         for member in self.members:
             if member["name"] == member_name:
                 return member
-        print(f"No member found by name {member_name}")
+        log.warning(f"No member found by name {member_name}")
 
     def match_adults(self):
         """Matches randomly each adult with another adult avoiding exceptions (adult-adult)"""
