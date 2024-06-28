@@ -1,0 +1,127 @@
+[
+  {
+    "enabled": false,
+    "name": "alain",
+    "family_id": "1",
+    "age": "adult",
+    "exceptions": [
+      "charlene",
+      "clea"
+    ]
+  },
+  {
+    "enabled": true,
+    "name": "fatiha",
+    "family_id": "1",
+    "age": "adult",
+    "exceptions": [
+      "sylvain",
+      "lucien"
+    ]
+  },
+  {
+    "enabled": true,
+    "name": "sylvain",
+    "family_id": "2",
+    "age": "adult",
+    "exceptions": [
+      "victor",
+      "margot"
+    ]
+  },
+  {
+    "enabled": false,
+    "name": "lorys",
+    "family_id": "2",
+    "age": "child",
+    "exceptions": ""
+  },
+  {
+    "enabled": true,
+    "name": "lysandre",
+    "family_id": "2",
+    "age": "child",
+    "exceptions": ""
+  },
+  {
+    "enabled": false,
+    "name": "fabien",
+    "family_id": "3",
+    "age": "adult",
+    "exceptions": [
+      "fatiha"
+    ]
+  },
+  {
+    "enabled": false,
+    "name": "anais",
+    "family_id": "3",
+    "age": "adult",
+    "exceptions": [
+      "alain",
+      "lysandre"
+    ]
+  },
+  {
+    "enabled": true,
+    "name": "zoe",
+    "family_id": "3",
+    "age": "child",
+    "exceptions": ""
+  },
+  {
+    "enabled": false,
+    "name": "clea",
+    "family_id": "3",
+    "age": "child",
+    "exceptions": ""
+  },
+  {
+    "enabled": true,
+    "name": "charlene",
+    "family_id": "4",
+    "age": "adult",
+    "exceptions": [
+      "fabien",
+      "zoe"
+    ]
+  },
+  {
+    "enabled": false,
+    "name": "victor",
+    "family_id": "4",
+    "age": "adult",
+    "exceptions": [
+      "anais",
+      "lorys"
+    ]
+  },
+  {
+    "enabled": false,
+    "name": "margot",
+    "family_id": "4",
+    "age": "child",
+    "exceptions": ""
+  },
+  {
+    "enabled": true,
+    "name": "lucien",
+    "family_id": "4",
+    "age": "child",
+    "exceptions": ""
+  },
+  {
+    "enabled": true,
+    "name": "adeline",
+    "family_id": "5",
+    "age": "adult",
+    "exceptions": ""
+  },
+  {
+    "enabled": true,
+    "name": "hector",
+    "family_id": "5",
+    "age": "adult",
+    "exceptions": ""
+  }
+]

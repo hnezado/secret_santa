@@ -9,7 +9,7 @@
         "btn": {
             "roll": "Roll",
             "clear": "Clear",
-            "open_config": "Open configuration",
+            "open_data": "Open data file",
             "add_conf_table": "Add member",
             "edit_conf_table": "Edit member",
             "del_conf_table": "Delete member",
@@ -41,7 +41,7 @@
         "btn": {
             "roll": "Combinar",
             "clear": "Limpiar",
-            "open_config": "Abrir configuración",
+            "open_data": "Abrir archivo de datos",
             "add_conf_table": "Añadir miembro",
             "edit_conf_table": "Editar miembro",
             "del_conf_table": "Eliminar miembro",
@@ -73,7 +73,7 @@
         "btn": {
             "roll": "Combiner",
             "clear": "Clair",
-            "open_config": "Ouvrir configuration",
+            "open_data": "Ouvrir fichier de données",
             "add_conf_table": "Ajouter membre",
             "edit_conf_table": "Modifier membre",
             "del_conf_table": "Supprimer membre",

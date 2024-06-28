@@ -4,92 +4,88 @@ import json
 import logging as log
 import random as r
 from collections import OrderedDict
-from config import Member
 
 
 class Logic:
     def __init__(self):
         self.member_attrs = ["enabled", "name", "family_id", "adult", "exceptions"]
-        self.members_raw = None
-        self.members_names = None
-        self.members = None
-        self.adults = None
-        self.children = None
+        self.members = []
+        self.adults = {}
+        self.children = {}
 
         self.read_members()
         self.parse_members()
 
     def read_members(self):
-        """Reads and loads the config file"""
+        """Reads and loads the data file"""
         
-        with open("config.json") as f:
-            self.members_raw = json.load(f, object_pairs_hook=OrderedDict)
+        with open("data/data.json") as f:
+            self.members = json.load(f, object_pairs_hook=OrderedDict)
 
     def add_member(self, member):
-        """Adds a new member to the config file"""
+        """Adds a new member to the data file"""
         
-        for attr in vars(member):
-            self.members[attr] = member[attr]
-        self.update_config_file()
-        
+        self.members.append(member)
+        self.save_data()
+
+    def update_member(self, updated_member: object) -> None:
+        """Edits an existing member data from the data file"""
+
+        for i, member in enumerate(self.members):
+            if member["name"] == updated_member.name:
+                self.members[i] = updated_member
+                break
+        self.save_data()
+
     def del_member(self, member):
-        """Deletes an existing member from the config file"""
-        
-        print(1, self.members)
-        del self.members[member.name.lower()]
-        self.update_config_file()
-        print(2, self.members)
+        """Deletes an existing member from the data file"""
+
+        for i, m in enumerate(self.members):
+            if m["name"] == member.name:
+                del self.members[i]
+                break
+        self.save_data()
 
     def parse_members(self):
-        """Parses the raw input into a dictionary with Member() objects"""
+        """Parse the data into dictionaries of members"""
 
-        self.members = OrderedDict()
-        
-        for name, attrs in self.members_raw.items():
-            instance = "Member("
-            for attr in attrs.keys():
-                value = f'"{attrs[attr]}"' if type(attrs[attr]) == str else attrs[attr]
-                instance = f'{instance}{value}, '
-            instance = f'{instance[:-2]})'
-            self.members[name] = eval(instance)
-            
-        self.adults = {name: member for name, member in self.members.items()
-            if member.age == "adult" and member.enabled}
-        self.children = {name: member for name, member in self.members.items() 
-            if member.age == "child" and member.enabled}
+        self.adults = [member for member in self.members if member["age"] == "adult" and member["enabled"]]
+        self.children = [member for member in self.members if member["age"] == "child" and member["enabled"]]
 
-    def update_config_file(self):
+    def save_data(self):
         """Updates the json file"""
-        
-        self.members_raw = OrderedDict()
-        for k, member in self.members.items():
-            self.members_raw[k] = OrderedDict()
-            for attr in list(vars(member).keys()):
-                self.members_raw[k][attr] = eval(f'member.{attr}')
 
-        output = json.dumps(self.members_raw, indent=2)
+        with (open("data/data.json", "w") as f):
+            json.dump(self.members, f, indent=2)
 
-        with open("config.json", "w") as f:
-            f.write(output)
+    def get_member(self, member_name):
+        """Returns the full member dict by its name"""
+
+        for member in self.members:
+            if member["name"] == member_name:
+                return member
+        print(f"No member found by name {member_name}")
 
     def match_adults(self):
         """Matches randomly each adult with another adult avoiding exceptions (adult-adult)"""
-        
-        unmatched_a = list(self.adults.keys())
+
+        unmatched_adults = [m["name"] for m in self.adults]
         matches = {}
-        for a1 in list(self.adults.keys()):
-            a2 = r.choice(unmatched_a)
-            if a1 != a2:
-                if a2 not in self.adults[a1].exceptions:
-                    if self.adults[a1].family_id != self.adults[a2].family_id:
-                        if a2 in matches.keys():
-                            if matches[a2] != a1:
-                                a2 = unmatched_a.pop(unmatched_a.index(a2))
-                                matches[a1] = self.adults[a2]
+        for adult_name_1 in unmatched_adults[:]:
+            adult_name_2 = r.choice(unmatched_adults)
+            if adult_name_1 != adult_name_2:
+                adult_1 = self.get_member(adult_name_1)
+                adult_2 = self.get_member(adult_name_2)
+                if adult_name_2 not in adult_1["exceptions"]:
+                    if adult_1["family_id"] != adult_2["family_id"]:
+                        if adult_name_2 in matches.keys():
+                            if matches[adult_name_2] != adult_name_1:
+                                unmatched_adults.remove(adult_name_2)
+                                matches[adult_name_1] = adult_name_2
                         else:
-                            a2 = unmatched_a.pop(unmatched_a.index(a2))
-                            matches[a1] = self.adults[a2]
-        if unmatched_a:
+                            unmatched_adults.remove(adult_name_2)
+                            matches[adult_name_1] = adult_name_2
+        if unmatched_adults:
             return self.match_adults()
         else:
             return matches
@@ -98,31 +94,33 @@ class Logic:
         """Matches randomly each child with an adult (adult-child(ren))"""
         
         # Exception ("Alain" & "Fatiha" no related to any children)
-        unmatched_a = [a_name for a_name, adult in self.adults.items() if adult.name not in ["Alain", "Fatiha"]]
+        unmatched_adults = [m["name"] for m in self.adults if m["name"] not in ["Alain", "Fatiha"]]
         
         # unmatched_a = [a_name for a_name, adult in self.adults.items()]
-        unmatched_c = list(self.children.keys())
+        unmatched_children = [m["name"] for m in self.children]
         matches = {}
-        for _ in range(len(unmatched_a)):
-            a_name = r.choice(unmatched_a)
-            c_name = None
+        for _ in range(len(unmatched_adults)):
+            adult_name = r.choice(unmatched_adults)
+            child_name = None
             try:
-                c_name = r.choice(unmatched_c)
+                child_name = r.choice(unmatched_children)
             except IndexError:
-                log.info(f'Children list is empty')
-            if c_name:
-                if c_name not in self.adults[a_name].exceptions:
-                    if self.children[c_name].family_id != self.adults[a_name].family_id:
-                        adult = unmatched_a.pop(unmatched_a.index(a_name))
-                        child = unmatched_c.pop(unmatched_c.index(c_name))
-                        matches[adult] = self.children[child]
-        if unmatched_a and unmatched_c:
+                log.warning(f'Children list is empty')
+            if child_name:
+                adult = self.get_member(adult_name)
+                child = self.get_member(child_name)
+                if child_name not in adult["exceptions"]:
+                    if child["family_id"] != adult["family_id"]:
+                        unmatched_adults.remove(adult_name)
+                        unmatched_children.remove(child_name)
+                        matches[adult_name] = child_name
+        if unmatched_adults and unmatched_children:
             return self.match_children()
         else:
-            if unmatched_a:
-                log.warning(f'Unmatched adults: {unmatched_a}')
-            elif unmatched_c:
-                log.warning(f'Unmatched children: {unmatched_c}')
+            if unmatched_adults:
+                log.warning(f'Unmatched adults: {unmatched_adults}')
+            elif unmatched_children:
+                log.warning(f'Unmatched children: {unmatched_children}')
             return matches
 
     @staticmethod
@@ -144,7 +142,7 @@ class Logic:
     def run(self):
         """Main logic"""
         
-        matches_a = self.match_adults()
-        matches_c = self.match_children()
-        matches = self.merge_matches(matches_a, matches_c)
+        matches_adults = self.match_adults()
+        matches_children = self.match_children()
+        matches = self.merge_matches(matches_adults, matches_children)
         return matches

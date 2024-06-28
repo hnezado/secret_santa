@@ -6,7 +6,9 @@ from reportlab.graphics import renderPM
 from tkinter import *
 from tkinter import ttk
 from user_settings import *
-from config import Member
+from tabs.run import Run
+from tabs.configuration import Configuration
+from tabs.preferences import Preferences
 
 
 class Interface:
@@ -16,58 +18,15 @@ class Interface:
         self.uset = UserSettings()
         self.style = None
 
-        # Components
-        self.notebook = None
-        ## RUN
-        self.tab_run = None
-        self.btn_run_roll = None
-        self.btn_run_clear = None
-        self.table_run = None
-        ## CONF
-        self.tab_conf = None
-        self.frame_conf_act = None
-        self.btn_conf_open_config_file = None
-        self.btn_conf_add = None
-        self.btn_conf_edit = None
-        self.btn_conf_del = None
-        self.table_conf = None
-        self.tip_add = None
-        self.tip_edit = None
-        self.tip_del = None
-        ## PREF
-        self.tab_pref = None
-        self.frame_pref_lang = None
-        self.label_pref_lang = None
-        self.btn_pref_lang_en = None
-        self.btn_pref_lang_es = None
-        self.btn_pref_lang_fr = None
-        self.btn_pref_open_style_sett = None
-        self.btn_pref_future = None
-        self.tip_lang_en = None
-        self.tip_lang_es = None
-        self.tip_lang_fr = None
-        ## Pop-ups
-        self.puadd_frame_data = None
-        self.puadd_frame_actions = None
-        self.puedit_frame_data = None
-        self.puedit_frame_actions = None
-        self.pudel_frame_data = None
-        self.pudel_frame_actions = None
+        # Style
+        self.grid_param = self.get_grid_param()
+        self.style_static = self.get_style_static()
+        self.style_dynamic = self.get_style_dynamic()
 
         # Displayed text (language settings)
         self.lang = None
         self.disp_txt = None
         self.update_lang()
-        
-        # Row selected
-        self.table_conf_sel = {
-            "row": None,
-            "member": None
-        }
-        
-        # Columns to display in each table
-        self.table_run_cols = ("member", "assigned")
-        self.table_conf_cols = ("#0", "family_id", "member", "age", "exceptions")
 
         # Windows
         self.root = Tk()
@@ -79,10 +38,42 @@ class Interface:
         self.set_root()
         self.popup = None
 
-        # Style
-        self.grid_param = self.get_grid_param()
-        self.style_static = self.get_style_static()
-        self.style_dynamic = self.get_style_dynamic()
+        # Components
+        self.notebook = ttk.Notebook(self.root)
+        self.tab_run = Run(self)
+        self.tab_conf = Configuration(self)
+        self.tab_pref = Preferences(self)
+
+
+        ## CONF
+        self.tab_conf = None
+        self.frame_conf_act = None
+        self.btn_conf_open_data_file = None
+        self.btn_conf_add = None
+        self.btn_conf_edit = None
+        self.btn_conf_del = None
+        self.table_conf = None
+        self.tip_add = None
+        self.tip_edit = None
+        self.tip_del = None
+
+        ## Pop-ups
+        self.puadd_frame_data = None
+        self.puadd_frame_actions = None
+        self.puedit_frame_data = None
+        self.puedit_frame_actions = None
+        self.pudel_frame_data = None
+        self.pudel_frame_actions = None
+        self.text_widgets = dict()
+        
+        # Row selected
+        self.table_conf_sel = {
+            "row": None,
+            "member": None
+        }
+        
+        # Columns to display in each table
+        self.table_conf_cols = ("#0", "family_id", "member", "age", "exceptions")
         
         # Data
         self.img = {
@@ -96,14 +87,12 @@ class Interface:
             "fr_flag": PhotoImage(file="./images/fr.png"),
             "wip": PhotoImage(file="./images/wip.png")
         }
-        self.table_run_data = {}
 
         # Columns & rows
-        self.run_col_width = (self.fixed_win["dim"][0] - 2 * (self.style_static["settings"]["TNotebook"]["configure"]["padding"][0] + self.style_static["settings"]["TFrame"]["configure"]["padding"][0])) // len(self.table_run_cols) - 3
         self.conf_first_col_width = 16 * 2 + self.img["checked"].width()
         self.conf_col_width = (self.fixed_win["dim"][0] - 2 * (self.style_static["settings"]["TNotebook"]["configure"]["padding"][0]+ + self.style_static["settings"]["TFrame"]["configure"]["padding"][0]) - self.conf_first_col_width) // (len(self.table_conf_cols) - 1) - 3
         self.table_conf_last_index = 0
-        
+
         # Initialization
         Pmw.initialise(self.root)
         self.set_style()
@@ -112,12 +101,13 @@ class Interface:
 
     def update_lang(self, lang: str = None) -> None:
         """Updates the language data on the interface module"""
-        
+
         def load_lang(language) -> dict:
             """Retrieves the selected language data"""
             with open("./user_settings/lang.json", encoding="utf-8") as f:
                 raw = f.read()
                 return json.loads(raw)[language]
+
         if lang:
             self.uset.update_lang(lang)
             self.uset.load_user_settings()
@@ -126,7 +116,7 @@ class Interface:
 
     def set_root(self) -> None:
         """Generates the root window with its dimensions and position"""
-        
+
         self.root.title("Secret Santa")
         self.root.iconbitmap("secret_santa.ico")
         self.root.minsize(
@@ -144,14 +134,14 @@ class Interface:
         self.root.geometry(
             f'{self.fixed_win["dim"][0]}x{self.fixed_win["dim"][1]}+{self.fixed_win["pos"][0]}+{self.fixed_win["pos"][1]}'
         )
-        
+
         # Grid configuration
         self.root.rowconfigure(0, weight=100)
         self.root.columnconfigure(0, weight=100)
 
     @staticmethod
     def get_grid_param() -> dict:
-        """Retrieves the static style data"""
+        """Retrieves the static grid data"""
         
         with open("./user_settings/styles/static.json") as f:
             static = f.read()
@@ -206,141 +196,14 @@ class Interface:
     def set_tabs(self) -> None:
         """Set the notebook and its tabs"""
         
-        self.notebook = ttk.Notebook(self.root)
-        self.create_tab_run()
-        self.create_tab_conf()
-        self.create_tab_pref()
+        self.tab_run.create_tab()
+        # self.create_tab_conf()
+        self.tab_pref.create_tab()
         self.notebook.grid(
             row=0,
             column=0,
             sticky=NSEW
         )
-
-    def create_tab_run(self) -> None:
-        """Creates the RUN tab"""
-        
-        # TFrame
-        self.tab_run = ttk.Frame(
-            self.notebook,
-            style="Run.TFrame"
-        )
-        self.tab_run.rowconfigure(0, weight=20)
-        self.tab_run.rowconfigure(1, weight=80)
-        self.tab_run.columnconfigure(0, weight=100)
-        self.tab_run.grid(
-            row=0,
-            column=0,
-            sticky=NSEW,
-            padx=self.grid_param["padding"]["tab_run"][0],
-            pady=self.grid_param["padding"]["tab_run"][1]
-        )
-        self.notebook.add(
-            self.tab_run
-        )
-
-        # Actions frame
-        self.frame_run_act = ttk.Frame(
-            self.tab_run,
-            style="Act.Run.TFrame"
-        )
-        self.frame_run_act.rowconfigure(0, weight=50)
-        self.frame_run_act.rowconfigure(1, weight=50)
-        self.frame_run_act.columnconfigure(0, weight=100)
-        self.frame_run_act.grid(
-            row=0,
-            column=0,
-            sticky=NSEW,
-            padx=self.grid_param["padding"]["frame_run_act"][0],
-            pady=self.grid_param["padding"]["frame_run_act"][1]
-        )
-
-        ## Buttons
-        self.btn_run_roll = ttk.Button(
-            self.frame_run_act,
-            command=self.action_run,
-            style="Roll.TButton",
-            takefocus=False
-        )
-        self.btn_run_roll.grid(
-            row=0,
-            column=0,
-            sticky=NSEW,
-            padx=self.grid_param["padding"]["btn_run_roll"][0],
-            pady=self.grid_param["padding"]["btn_run_roll"][1]
-        )
-        self.btn_run_clear = ttk.Button(
-            self.frame_run_act,
-            command=self.action_clear,
-            style="Clear.TButton",
-            takefocus=False
-        )
-        self.btn_run_clear.grid(
-            row=1,
-            column=0,
-            sticky=NSEW,
-            padx=self.grid_param["padding"]["btn_run_clear"][0],
-            pady=self.grid_param["padding"]["btn_run_clear"][1]
-        )
-
-        # Treeview
-        self.table_run = ttk.Treeview(
-            self.tab_run,
-            style="TableRun.Treeview"
-        )
-        self.table_run.configure(columns=self.table_run_cols)
-        self.table_run.grid(
-            row=1,
-            column=0,
-            sticky=NSEW,
-            padx=self.grid_param["padding"]["table_run"][0],
-            pady=self.grid_param["padding"]["table_run"][1]
-        )
-        
-        ## Tags
-        self.table_run.tag_configure(
-            "oddrow",
-            background="#C7DEB1"
-        )
-        self.update_tab_run()
-
-    def update_tab_run(self) -> None:
-        """Updates the RUN tab and its components"""
-        
-        self.notebook.tab(self.tab_run, text=self.disp_txt["run"])
-        self.btn_run_roll.configure(text=self.disp_txt["btn"]["roll"])
-        self.btn_run_clear.configure(text=self.disp_txt["btn"]["clear"])
-        # self.table_run.configure(height=20)
-        
-        ## Headings & columns
-        self.table_run.heading(
-            "#0",
-            text=""
-        )
-        self.table_run.column(
-            "#0",
-            stretch=NO,
-            minwidth=0,
-            width=0
-        )
-        for i, v in enumerate(self.table_run_cols):
-            self.table_run.heading(
-                v,
-                text=self.disp_txt["tab_run_table_headings"][i],
-                anchor=CENTER
-            )
-            self.table_run.column(
-                v,
-                stretch=YES,
-                # minwidth=self.fixed_style["treeview.column"]["minwidth"],
-                width=self.run_col_width,
-                anchor=CENTER
-            )
-        
-        self.empty_table(self.table_run)
-        for i, (name, assigned) in enumerate(self.table_run_data.items()):
-            tag = "evenrow" if i % 2 == 0 else "oddrow"
-            values = (f'{name.title()}', f'{", ".join([p.name for p in assigned])}')
-            self.table_run.insert("", "end", values=values, tags=tag)
 
     def create_tab_conf(self) -> None:
         """Creates the CONFIGURATION tab"""
@@ -383,13 +246,13 @@ class Interface:
         )
 
         # Buttons
-        self.btn_conf_open_config_file = ttk.Button(
+        self.btn_conf_open_data_file = ttk.Button(
             self.frame_conf_act,
             command=self.action_open_config_file,
             style="OpenConfigFile.TButton",
             takefocus=False
         )
-        self.btn_conf_open_config_file.grid(
+        self.btn_conf_open_data_file.grid(
             row=0,
             column=0,
             columnspan=3,
@@ -467,7 +330,7 @@ class Interface:
         """Updates the CONFIGURATION tab and its components"""
         
         self.notebook.tab(self.tab_conf, text=self.disp_txt["conf"])
-        self.btn_conf_open_config_file.configure(text=self.disp_txt["btn"]["open_config"])
+        self.btn_conf_open_data_file.configure(text=self.disp_txt["btn"]["open_data"])
         self.btn_conf_add.configure(text="+")
         self.btn_conf_edit.configure(text="Y")
         self.btn_conf_del.configure(text="-")
@@ -540,173 +403,18 @@ class Interface:
                 )
             self.table_conf_last_index += 1
 
-    def create_tab_pref(self) -> None:
-        """Creates de PREFERENCES tab"""
-        
-        # Frame preferences
-        self.tab_pref = ttk.Frame(
-            self.notebook,
-            style="Pref.TFrame"
-        )
-        self.tab_pref.rowconfigure(0, weight=25)
-        self.tab_pref.rowconfigure(1, weight=10)
-        self.tab_pref.rowconfigure(2, weight=65)
-        self.tab_pref.columnconfigure(0, weight=100)
-
-        self.tab_pref.grid(
-            row=0,
-            column=0,
-            sticky=NSEW,
-            padx=self.grid_param["padding"]["tab_pref"][0],
-            pady=self.grid_param["padding"]["tab_pref"][1]
-        )
-        self.notebook.add(
-            self.tab_pref
-        )
-        
-        # Frame preferences language 
-        self.frame_pref_lang = ttk.Frame(
-            self.tab_pref,
-            style="Lang.Pref.TFrame"
-        )
-        self.frame_pref_lang.rowconfigure(0, weight=30)
-        self.frame_pref_lang.rowconfigure(1, weight=70)
-        self.frame_pref_lang.columnconfigure(0, weight=33)
-        self.frame_pref_lang.columnconfigure(1, weight=33)
-        self.frame_pref_lang.columnconfigure(2, weight=33)
-        self.frame_pref_lang.grid(
-            row=0,
-            column=0,
-            sticky=NSEW,
-            padx=self.grid_param["padding"]["frame_pref_lang"][0],
-            pady=self.grid_param["padding"]["frame_pref_lang"][1]
-        )
-        # Label language
-        self.label_pref_lang = ttk.Label(
-            self.frame_pref_lang,
-            style="Lang.Pref.TLabel",
-        )
-        self.label_pref_lang.grid(
-            row=0,
-            column=0,
-            columnspan=3,
-            sticky=NSEW,
-            padx=self.grid_param["padding"]["label_pref_lang"][0],
-            pady=self.grid_param["padding"]["label_pref_lang"][1]
-        )
-        
-        ## Buttons language
-        self.btn_pref_lang_en = ttk.Button(
-            self.frame_pref_lang,
-            command=self.action_swap_lang_en,
-            style="Lang.TButton",
-            takefocus=False
-        )
-        self.btn_pref_lang_en.grid(
-            row=1,
-            column=0,
-            padx=self.grid_param["padding"]["btn_pref_lang_en"][0],
-            pady=self.grid_param["padding"]["btn_pref_lang_en"][1]
-        )
-        self.btn_pref_lang_es = ttk.Button(
-            self.frame_pref_lang,
-            command=self.action_swap_lang_es,
-            style="Lang.TButton",
-            takefocus=False
-        )
-        self.btn_pref_lang_es.grid(
-            row=1,
-            column=1,
-            padx=self.grid_param["padding"]["btn_pref_lang_es"][0],
-            pady=self.grid_param["padding"]["btn_pref_lang_es"][1]
-        )
-        self.btn_pref_lang_fr = ttk.Button(
-            self.frame_pref_lang,
-            command=self.action_swap_lang_fr,
-            style="Lang.TButton",
-            takefocus=False
-        )
-        self.btn_pref_lang_fr.grid(
-            row=1,
-            column=2,
-            padx=self.grid_param["padding"]["btn_pref_lang_fr"][0],
-            pady=self.grid_param["padding"]["btn_pref_lang_fr"][1]
-        )
-        
-        ## Button open user settings
-        self.btn_pref_open_style_sett = ttk.Button(
-            self.tab_pref,
-            command=self.action_open_style_sett_file,
-            style="OpenStyleSett.TButton",
-            takefocus=False
-        )
-        self.btn_pref_open_style_sett.grid(
-            row=1,
-            column=0,
-            padx=self.grid_param["padding"]["btn_pref_open_style_sett"][0],
-            pady=self.grid_param["padding"]["btn_pref_open_style_sett"][1]
-        )
-        
-        ## Button Future
-        self.btn_pref_future = ttk.Button(
-            self.tab_pref,
-            command=lambda: print(":)"),
-            style="Future.TButton",
-            takefocus=False
-        )
-        self.btn_pref_future.grid(
-            row=2,
-            column=0,
-            padx=self.grid_param["padding"]["btn_pref_future"][0],
-            pady=self.grid_param["padding"]["btn_pref_future"][1]
-        )
-        
-        self.update_tab_pref()
-
-    def update_tab_pref(self) -> None:
-        """Updates the PREFERENCES tab and its components"""
-        
-        self.notebook.tab(self.tab_pref, text=self.disp_txt["pref"])
-        self.label_pref_lang.configure(text=self.disp_txt["label"]["lang"])
-        self.btn_pref_lang_en.configure(image=self.img["en_flag"])
-        self.btn_pref_lang_es.configure(image=self.img["es_flag"])
-        self.btn_pref_lang_fr.configure(image=self.img["fr_flag"])
-        self.btn_pref_open_style_sett.configure(
-            text=self.disp_txt["btn"]["open_style_sett"]
-        )
-        self.btn_pref_future.configure(
-            text=self.disp_txt["btn"]["future"],
-            image=self.img["wip"],
-            compound=TOP
-        )
-        
-        # Tooltips
-        self.tip_lang_en = Pmw.Balloon(self.root)
-        self.tip_lang_en.bind(self.btn_pref_lang_en, self.disp_txt["btn"]["lang_en"])
-        self.tip_lang_es = Pmw.Balloon(self.root)
-        self.tip_lang_es.bind(self.btn_pref_lang_es, self.disp_txt["btn"]["lang_es"])
-        self.tip_lang_fr = Pmw.Balloon(self.root)
-        self.tip_lang_fr.bind(self.btn_pref_lang_fr, self.disp_txt["btn"]["lang_fr"])
-
     def empty_table(self, table: ttk.Treeview) -> None:
         """Empties the config table and resets its index"""
         
         table.delete(*table.get_children())
         self.table_conf_last_index = 0
 
-    def action_run(self) -> None:
-        """Retrieves the randomized paired data"""
-        
-        if not self.popup:
-            self.table_run_data = self.logic.run()
-            self.update_tab_run()
+    def update_tabs(self):
+        """Updates every tab"""
 
-    def action_clear(self) -> None:
-        """Clears the retrieved data and the treeview"""
-        
-        if not self.popup:
-            self.table_run_data.clear()
-            self.update_tab_run()
+        self.tab_run.update_tab()
+        # self.tab_conf.update_tab()
+        self.tab_pref.update_tab()
 
     def action_open_config_file(self) -> None:
         """Opens the configuration file"""
@@ -714,43 +422,50 @@ class Interface:
         if not self.popup:
             os.system("notepad.exe " + self.uset.user_settings["input_file"])
 
-    def action_open_style_sett_file(self) -> None:
-        """Opens the style settings file"""
-        
-        if not self.popup:
-            os.system("notepad.exe " + self.uset.user_settings["style"])
-
     def action_swap_check(self, member: object) -> None:
         """Swaps the member status (enabled, disabled)"""
 
         self.logic.members[member.name.lower()].enabled = not self.logic.members[member.name.lower()].enabled
 
-    def action_swap_lang_en(self) -> None:
-        """Swaps and updates the language to english"""
-        
-        if not self.popup:
-            self.update_lang("en")
-            self.update_tab_run()
-            self.update_tab_conf()
-            self.update_tab_pref()
-    
-    def action_swap_lang_es(self) -> None:
-        """Swaps and updates the language to spanish"""
-        
-        if not self.popup:
-            self.update_lang("es")
-            self.update_tab_run()
-            self.update_tab_conf()
-            self.update_tab_pref()
-    
-    def action_swap_lang_fr(self) -> None:
-        """Swaps and updates the language to french"""
-        
-        if not self.popup:
-            self.update_lang("fr")
-            self.update_tab_run()
-            self.update_tab_conf()
-            self.update_tab_pref()
+    def action_save(self, member: object) -> None:
+        """Saves the new_data from the corresponding member"""
+
+        for key, widget in self.text_widgets.items():
+            if '#' in key:
+                main_key, index = key.rsplit('#', 1)
+                index = int(index)
+                if main_key not in vars(member):
+                    setattr(member, main_key, [])
+                while len(getattr(member, main_key)) <= index:
+                    getattr(member, main_key).append("")
+                value = widget.get("1.0", END).strip()
+                if value.lower() == "true":
+                    value = True
+                elif value.lower() == "false":
+                    value = False
+                getattr(member, main_key)[index] = value
+            else:
+                value = widget.get("1.0", END).strip()
+                if value.lower() == "true":
+                    value = True
+                elif value.lower() == "false":
+                    value = False
+                setattr(member, key, value)
+
+        for key, value in vars(member).items():
+            if isinstance(value, list):
+                cleaned_list = [item for item in value if item]
+                setattr(member, key, cleaned_list)
+
+            # Actualiza el miembro en la lista
+        for i, m in enumerate(self.logic.members):
+            if m["name"] == member.name:
+                self.logic.members[i] = member
+                break
+
+        self.logic.update_member(member)
+        self.popup_close()
+        self.update_tab_conf()
 
     def action_add(self) -> None:
         """Adds a new member to the config file"""
@@ -780,9 +495,9 @@ class Interface:
         
         print(f'Adding new member data!')
     
-    def action_puedit_confirm(self) -> None:
+    def action_puedit_confirm(self, member) -> None:
         """Confirms (overrides) the editing member data action"""
-    
+
         print(f'Overriding member data from: {self.table_conf_sel["member"]}!')
 
     def action_pudel_confirm(self) -> None:
@@ -865,9 +580,16 @@ class Interface:
     def popup_open_edit(self, member):
         """Opens a pop-up window allowing the selected member data edition"""
         # TODO Pendiente de añadir languages a los botones (y labels?)
-        
+
+        # Clear widgets
+        try:
+            for widget in self.puadd_frame_data.winfo_children():
+                widget.destroy()
+        except:
+            pass
+
         member_attrs = vars(member)
-        
+
         # Popup window
         try:
             self.popup_close()
@@ -877,74 +599,60 @@ class Interface:
         self.popup.rowconfigure(0, weight=90)
         self.popup.rowconfigure(1, weight=10)
         self.popup.columnconfigure(0, weight=100)
-        
-        # Frames
-        self.puedit_frame_data = Frame(self.popup)
-        [self.puedit_frame_data.rowconfigure(i, weight=100//len(member_attrs)) for i in range(len(member_attrs))]
-        self.puedit_frame_data.columnconfigure(0, weight=100)
-        self.puedit_frame_data.grid(
-            row=0,
-            column=0,
-            sticky=NSEW
-        )
-        self.puedit_frame_actions = Frame(self.popup)
-        self.puedit_frame_actions.rowconfigure(0, weight=100)
-        self.puedit_frame_actions.columnconfigure(0, weight=50)
-        self.puedit_frame_actions.columnconfigure(1, weight=50)
-        self.puedit_frame_actions.grid(
-            row=1,
-            column=0,
-            sticky=NSEW
-        )
-        
-        # Member data
-        for attr_index, (attr_name, attr_value) in enumerate(member_attrs.items()):
-            frame_attr = Frame(self.puedit_frame_data)
-            frame_attr.columnconfigure(0, weight=20)
-            frame_attr.columnconfigure(1, weight=80)
-            if type(attr_value) == list:
-                if len(attr_value) > 0:
-                    for row_index in range(len(attr_value)):
-                        frame_attr.rowconfigure(row_index, weight=100//len(attr_value))
+
+        table_frame = Frame(self.popup)
+        table_frame.grid(row=0, column=0, sticky="nsew")
+        table_frame.columnconfigure(0, weight=25, minsize=100)
+        table_frame.columnconfigure(1, weight=75)
+
+        row_index = 0
+        for key, value in member_attrs.items():
+            if isinstance(value, list):
+                if value:
+                    label_key = Label(table_frame, text=key.title())
+                    label_key.grid(row=row_index, column=0, sticky="w")
+                    text_box = Text(table_frame, height=1, width=20)
+                    text_box.insert(END, value[0])
+                    text_box.grid(row=row_index, column=1, sticky="nsew")
+                    self.text_widgets[f"{key}#0"] = text_box
+                    row_index += 1
+
+                    for i, item in enumerate(value[1:], start=1):
+                        label_key_empty = Label(table_frame, text="")
+                        label_key_empty.grid(row=row_index, column=0, sticky="w")
+                        text_box = Text(table_frame, height=1, width=20)
+                        text_box.insert(END, item)
+                        text_box.grid(row=row_index, column=1, sticky="nsew")
+                        self.text_widgets[f"{key}#{i}"] = text_box
+                        row_index += 1
                 else:
-                    frame_attr.rowconfigure(0, weight=100)
-                frame_attr.grid(row=attr_index, column=0, sticky=NSEW)
-                label = Label(frame_attr, height=1, text=f'{attr_name}: '.title())
-                label.grid(row=0, column=0, sticky="NSW")
-                for row_index, attr_element in enumerate(attr_value):
-                    text_box = Text(frame_attr, height=1)
-                    text_box.grid(row=row_index, column=1, sticky=NSEW)
-                    text_box.insert("end", attr_element)
+                    label_key = Label(table_frame, text=key.title())
+                    label_key.grid(row=row_index, column=0, sticky="w")
+                    text_box = Text(table_frame, height=1, width=20)
+                    text_box.grid(row=row_index, column=1, sticky="nsew")
+                    self.text_widgets[key] = text_box
+                    row_index += 1
             else:
-                frame_attr.rowconfigure(0, weight=100)
-                frame_attr.grid(row=attr_index, column=0, sticky=NSEW)
-                label = Label(frame_attr, height=1, text=f'{attr_name}: '.title())
-                label.grid(row=0, column=0, sticky="NSW")
-                text_box = Text(frame_attr, height=1)
-                text_box.grid(row=0, column=1, sticky=NSEW)
-                text_box.insert("end", attr_value)
-        
-        # Buttons
-        btn_save = Button(
-            self.puedit_frame_actions,
-            text="Save",
-            command=self.action_puedit_confirm
-        )
-        btn_save.grid(
-            row=1,
-            column=0,
-            sticky=NSEW
-        )
-        btn_cancel = Button(
-            self.puedit_frame_actions,
-            text="Cancel",
-            command=self.popup_close
-        )
-        btn_cancel.grid(
-            row=1,
-            column=1,
-            sticky=NSEW
-        )
+                label_key = Label(table_frame, text=key.title())
+                label_key.grid(row=row_index, column=0, sticky="w")
+                text_box = Text(table_frame, height=1, width=20)
+                text_box.insert(END, str(value))
+                text_box.grid(row=row_index, column=1, sticky="nsew")
+                self.text_widgets[key] = text_box
+                row_index += 1
+
+        # Crear un frame para los botones
+        button_frame = Frame(self.popup)
+        button_frame.grid(row=1, column=0, sticky="nsew")
+        button_frame.columnconfigure(0, weight=50)
+        button_frame.columnconfigure(1, weight=50)
+
+        # Agregar los botones de Save y Cancel
+        save_button = Button(button_frame, text="Save", command=lambda m=member: self.action_save(m))
+        save_button.grid(row=0, column=0, sticky="e", padx=10, pady=10)
+
+        cancel_button = Button(button_frame, text="Cancel", command=self.popup_close)
+        cancel_button.grid(row=0, column=1, sticky="w", padx=10, pady=10)
         
         self.popup.protocol("WM_DELETE_WINDOW", self.popup_close)
         self.popup_upd_edit()
@@ -1043,9 +751,18 @@ class Interface:
 
     def popup_close(self) -> None:
         """Closes the popup and sets some variables"""
-        
-        self.popup.destroy()
-        self.popup = None
+
+        if self.popup:
+            self.popup.destroy()
+            self.popup = None
+        self.text_widgets.clear()
+        self.table_conf_sel = self.table_conf_sel = {
+            "row": None,
+            "member": None
+        }
+        self.update_tab_run()
+        self.update_tab_conf()
+        self.update_tab_pref()
 
     @staticmethod
     def disable_resizing(_) -> str:
@@ -1070,7 +787,7 @@ class Interface:
                         log.error(f'The member with index "{row}" cannot be found')
                     if col == 0:
                         self.action_swap_check(member)
-                        self.logic.update_config_file()
+                        self.logic.save_data()
                         self.update_tab_conf()
                     else:
                         if self.table_conf_sel["row"] == row:
@@ -1091,6 +808,6 @@ class Interface:
     def display(self) -> None:
         """Main interface"""
         
-        self.table_run.bind("<Button-1>", self.disable_resizing)
-        self.table_conf.bind("<Button-1>", self.on_click_config)
+        self.tab_run.table_main.bind("<Button-1>", self.disable_resizing)
+        # self.tab_conf.table_conf.bind("<Button-1>", self.on_click_config)
         self.root.mainloop()

@@ -1,5 +1,18 @@
-from config import Member
+class Run:
+    def __init__(self, ui):
+        self.ui = ui
 
-m1 = Member(True, "hector", 2)
+    def show(self):
+        return self.ui.w
 
-# print(m1)
+
+class Interface:
+    def __init__(self):
+        self.w = 800
+        self.h = 600
+
+        self.run_tab = Run(self)
+
+
+ui = Interface()
+print(ui.run_tab.show())
