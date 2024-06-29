@@ -203,7 +203,7 @@ class Configuration:
                 )
 
         self.empty_table()
-        self.ui.logic.read_members()
+        self.ui.logic.load_members()
         self.ui.logic.parse_members()
         for i, member in enumerate(self.ui.logic.members):
             if self.table_sel["row"] == i:

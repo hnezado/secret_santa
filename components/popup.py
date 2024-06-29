@@ -8,18 +8,17 @@ class Popup:
         self.ui = ui
         self.popup = None
 
-        self.puadd_frame_data = None
-        self.puadd_frame_actions = None
-        self.puedit_frame_data = None
-        self.puedit_frame_actions = None
-        self.pudel_frame_data = None
-        self.pudel_frame_actions = None
-        self.text_widgets = dict()
+        # Base frames
+        self.frame_data = None
+        self.frame_actions = None
 
+        # Data
+        self.text_widgets = {}
         self.sel_member = None
+        self.row_counters = {}
 
-    def open_add(self) -> None:
-        """Opens a pop-up window allowing the data entry of a new member"""
+    def create_base(self):
+        """Creates the popup base"""
 
         # Popup window
         self.action_close()
@@ -29,28 +28,45 @@ class Popup:
         self.popup.columnconfigure(0, weight=100)
 
         # Frames
-        self.puadd_frame_data = tk.Frame(self.popup)
+        self.frame_data = tk.Frame(self.popup)
         # [frame_data.rowconfigure(i, weight=100//len(member_attrs)) for i in range(len(member_attrs))]
-        self.puadd_frame_data.columnconfigure(0, weight=30)
-        self.puadd_frame_data.columnconfigure(1, weight=70)
-        self.puadd_frame_data.grid(
+        self.frame_data.columnconfigure(0, weight=25)
+        self.frame_data.columnconfigure(1, weight=70)
+        self.frame_data.columnconfigure(2, weight=5)
+        self.frame_data.grid(
             row=0,
             column=0,
             sticky=tk.NSEW
         )
-        self.puadd_frame_actions = tk.Frame(self.popup)
-        self.puadd_frame_actions.rowconfigure(0, weight=100)
-        self.puadd_frame_actions.columnconfigure(0, weight=50)
-        self.puadd_frame_actions.columnconfigure(1, weight=50)
-        self.puadd_frame_actions.grid(
+        self.frame_actions = tk.Frame(self.popup)
+        self.frame_actions.rowconfigure(0, weight=100)
+        self.frame_actions.columnconfigure(0, weight=50)
+        self.frame_actions.columnconfigure(1, weight=50)
+        self.frame_actions.grid(
             row=1,
             column=0,
             sticky=tk.NSEW
         )
 
-        # Buttons
+    def open_add(self) -> None:
+        """Opens a pop-up window allowing the data entry of a new member"""
+
+        self.create_base()
+
+        for i, attr in enumerate(self.ui.logic.attrs):
+            label = tk.Label(self.frame_data, height=1, text=f'{attr}: '.title())
+            label.grid(row=i, column=0, sticky="NSW")
+            text_box = tk.Text(self.frame_data, height=1)
+            text_box.grid(row=i, column=1, sticky=tk.NSEW)
+            self.text_widgets[attr] = [text_box]
+            if self.ui.logic.config[attr]["type"] == "list":
+                btn_add = tk.Button(self.frame_data, text="+", command=lambda a=attr: self.action_add_row(a))
+                btn_add.grid(row=i, column=2, sticky=tk.NSEW)
+                self.row_counters[attr] = i
+
+        # Actions
         btn_confirm = tk.Button(
-            self.puadd_frame_actions,
+            self.frame_actions,
             text="Confirm",
             command=self.action_confirm
         )
@@ -60,7 +76,7 @@ class Popup:
             sticky=tk.NSEW
         )
         btn_cancel = tk.Button(
-            self.puadd_frame_actions,
+            self.frame_actions,
             text="Cancel",
             command=self.action_close
         )
@@ -71,17 +87,6 @@ class Popup:
         )
 
         self.popup.protocol("WM_DELETE_WINDOW", self.action_close)
-        self.upd_add()
-
-    def upd_add(self) -> None:
-        """Updates the new member data addition pop-up"""
-
-        for i, param in enumerate(self.ui.logic.member_attrs):
-            label = tk.Label(self.puadd_frame_data, height=1, text=f'{param}: '.title())
-            label.grid(row=i, column=0, sticky="NSW")
-            text_box = tk.Text(self.puadd_frame_data, height=1)
-            text_box.grid(row=i, column=1, sticky=tk.NSEW)
-
         self.set_geometry()
 
     def open_edit(self, member):
@@ -89,20 +94,10 @@ class Popup:
         # TODO Pendiente de añadir languages a los botones (y labels?)
 
         self.sel_member = member
-
-        # Clear widgets
-        try:
-            for widget in self.puadd_frame_data.winfo_children():
-                widget.destroy()
-        except Exception:
-            log.error("Error cleaning popup widgets")
+        self.create_base()
 
         # Popup window
         self.action_close()
-        self.popup = tk.Toplevel()
-        self.popup.rowconfigure(0, weight=90)
-        self.popup.rowconfigure(1, weight=10)
-        self.popup.columnconfigure(0, weight=100)
 
         table_frame = tk.Frame(self.popup)
         table_frame.grid(row=0, column=0, sticky="nsew")
@@ -110,7 +105,7 @@ class Popup:
         table_frame.columnconfigure(1, weight=75)
 
         row_index = 0
-        for key, value in member.items():
+        for key, value in self.sel_member.items():
             if isinstance(value, list):
                 if value:
                     label_key = tk.Label(table_frame, text=key.title())
@@ -161,7 +156,6 @@ class Popup:
         self.popup.protocol("WM_DELETE_WINDOW", self.action_close)
         self.upd_edit()
 
-    # TODO pendiente update edit pop-up
     def upd_edit(self) -> None:
         """Updates the member data edition pop-up"""
 
@@ -180,19 +174,19 @@ class Popup:
         self.popup.columnconfigure(0, weight=100)
 
         # Frames
-        self.pudel_frame_data = tk.Frame(self.popup)
-        self.pudel_frame_data.rowconfigure(0, weight=100)
-        self.pudel_frame_data.columnconfigure(0, weight=100)
-        self.pudel_frame_data.grid(
+        self.frame_data = tk.Frame(self.popup)
+        self.frame_data.rowconfigure(0, weight=100)
+        self.frame_data.columnconfigure(0, weight=100)
+        self.frame_data.grid(
             row=0,
             column=0,
             sticky=tk.NSEW
         )
-        self.pudel_frame_actions = tk.Frame(self.popup)
-        self.pudel_frame_actions.rowconfigure(0, weight=100)
-        self.pudel_frame_actions.columnconfigure(0, weight=50)
-        self.pudel_frame_actions.columnconfigure(1, weight=50)
-        self.pudel_frame_actions.grid(
+        self.frame_actions = tk.Frame(self.popup)
+        self.frame_actions.rowconfigure(0, weight=100)
+        self.frame_actions.columnconfigure(0, weight=50)
+        self.frame_actions.columnconfigure(1, weight=50)
+        self.frame_actions.grid(
             row=1,
             column=0,
             sticky=tk.NSEW
@@ -200,7 +194,7 @@ class Popup:
 
         # Label
         label_confirm = tk.Label(
-            self.pudel_frame_data,
+            self.frame_data,
             height=3,
             text=f'Do you want to delete the selected member: "{member.name}"?'
         )
@@ -212,7 +206,7 @@ class Popup:
 
         # Buttons
         btn_confirm = tk.Button(
-            self.pudel_frame_actions,
+            self.frame_actions,
             text="Accept",
             command=self.action_pudel_confirm
         )
@@ -222,7 +216,7 @@ class Popup:
             sticky=tk.NSEW
         )
         btn_cancel = tk.Button(
-            self.pudel_frame_actions,
+            self.frame_actions,
             text="Cancel",
             command=self.action_close
         )
@@ -251,6 +245,34 @@ class Popup:
         popup_x = self.ui.root.winfo_screenwidth() // 2 - (popup_w // 2)
         popup_y = self.ui.root.winfo_screenheight() // 2 - (popup_h // 2)
         self.popup.geometry(f'{popup_w}x{popup_h}+{popup_x}+{popup_y}')
+
+    def action_add_row(self, attr):
+        """Adds a new row"""
+
+        row_index = self.row_counters[attr] + 1
+        self.row_counters[attr] = row_index
+
+        label_empty = tk.Label(self.frame_data, height=1, text="")
+        label_empty.grid(row=row_index, column=0, sticky="NSW")
+
+        text_box = tk.Text(self.frame_data, height=1)
+        text_box.grid(row=row_index, column=1, sticky=tk.NSEW)
+        self.text_widgets[attr].append(text_box)
+
+        btn_del = tk.Button(self.frame_data, text="-", command=lambda r=row_index, a=attr: self.action_remove_row(r, a))
+        btn_del.grid(row=row_index, column=2, sticky=tk.NSEW)
+
+        self.frame_data.grid_rowconfigure(row_index, weight=1)
+
+        self.set_geometry()
+
+    def action_remove_row(self, row_index, attr):
+        """Removes a row"""
+
+        for widget in self.frame_data.grid_slaves(row=row_index):
+            widget.grid_forget()
+        self.text_widgets[attr].pop(row_index - self.row_counters[attr])
+        self.row_counters[attr] -= 1
 
     def action_confirm(self) -> None:
         """Saves the new_data from the corresponding member"""

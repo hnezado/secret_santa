@@ -8,16 +8,26 @@ from collections import OrderedDict
 
 class Logic:
     def __init__(self):
-        self.member_attrs = ["enabled", "name", "family_id", "adult", "exceptions"]
+        self.config = {}
+        self.attrs = []
         self.members = []
         self.adults = {}
         self.children = {}
 
-        self.read_members()
+        self.load_config()
+        self.load_members()
         self.parse_members()
 
-    def read_members(self):
-        """Reads and loads the data file"""
+    def load_config(self):
+        """Loads the config file"""
+
+        with open("data/config.json") as f:
+            self.config = json.load(f, object_pairs_hook=OrderedDict)
+
+        self.attrs = self.config.keys()
+
+    def load_members(self):
+        """Loads the data file"""
         
         with open("data/data.json") as f:
             self.members = json.load(f, object_pairs_hook=OrderedDict)

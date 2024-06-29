@@ -1,6 +1,25 @@
 {
-  "age": [
-    "adult",
-    "child"
-  ]
+  "enabled": {
+    "type": "bool",
+    "values": null
+  },
+  "name": {
+    "type": "str",
+    "values": null
+  },
+  "family_id": {
+    "type": "int",
+    "values": null
+  },
+  "age": {
+    "type": "str",
+    "values": [
+      "adult",
+      "child"
+    ]
+  },
+  "exceptions": {
+    "type": "list",
+    "values": null
+  }
 }
