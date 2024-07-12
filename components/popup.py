@@ -1,5 +1,6 @@
 import tkinter as tk
 import logging as log
+from collections import OrderedDict
 
 
 class Popup:
@@ -11,13 +12,13 @@ class Popup:
         # Base frames
         self.frame_data = None
         self.frame_actions = None
+        self.frames_attrs = []
 
         # Data
         self.text_widgets = {}
         self.sel_member = None
-        self.row_counters = {}
 
-    def create_base(self):
+    def create_base(self, mode):
         """Creates the popup base"""
 
         # Popup window
@@ -28,17 +29,22 @@ class Popup:
         self.popup.columnconfigure(0, weight=100)
 
         # Frames
-        self.frame_data = tk.Frame(self.popup)
-        # [frame_data.rowconfigure(i, weight=100//len(member_attrs)) for i in range(len(member_attrs))]
-        self.frame_data.columnconfigure(0, weight=25)
-        self.frame_data.columnconfigure(1, weight=70)
-        self.frame_data.columnconfigure(2, weight=5)
+        self.frame_data = tk.Frame(self.popup, padx=10, pady=10)
+        if mode == "form":
+            self.frame_data.columnconfigure(0, weight=25)
+            self.frame_data.columnconfigure(1, weight=70)
+            self.frame_data.columnconfigure(2, weight=5)
+        elif mode == "info":
+            self.frame_data.columnconfigure(0, weight=100)
+        else:
+            log.error("Invalid popup base mode")
+
         self.frame_data.grid(
             row=0,
             column=0,
             sticky=tk.NSEW
         )
-        self.frame_actions = tk.Frame(self.popup)
+        self.frame_actions = tk.Frame(self.popup, padx=10, pady=10,)
         self.frame_actions.rowconfigure(0, weight=100)
         self.frame_actions.columnconfigure(0, weight=50)
         self.frame_actions.columnconfigure(1, weight=50)
@@ -48,105 +54,117 @@ class Popup:
             sticky=tk.NSEW
         )
 
+    def generate_attribute_frame(self, attr_index: int, attr_name: str, is_list: bool) -> tk.Frame:
+        """Returns a frame for one attribute"""
+
+        attr_frame = tk.Frame(self.frame_data)
+        attr_frame.grid(row=attr_index, column=0, sticky=tk.NSEW)
+        if is_list:
+            list_frame = tk.Frame(attr_frame)
+            list_frame.grid(row=0, column=0, sticky=tk.NSEW)
+            label = tk.Label(list_frame, text=f'{attr_name}: '.title(), width=10, height=1)
+            text_box = tk.Text(list_frame, height=1)
+            btn_add = tk.Button(list_frame, text="+", height=1, pady=-5, command=lambda ind=attr_index: self.action_add_row(ind))
+            btn_add.grid(row=0, column=2, sticky=tk.NSEW)
+        else:
+            label = tk.Label(attr_frame, text=f'{attr_name}: '.title(), anchor="e", width=10, height=1)
+            text_box = tk.Text(attr_frame, height=1)
+        label.grid(row=0, column=0, sticky="NSW")
+        text_box.grid(row=0, column=1, sticky=tk.NSEW)
+        return attr_frame
+
     def open_add(self) -> None:
         """Opens a pop-up window allowing the data entry of a new member"""
 
-        self.create_base()
+        self.create_base(mode="form")
 
         for i, attr in enumerate(self.ui.logic.attrs):
-            label = tk.Label(self.frame_data, height=1, text=f'{attr}: '.title())
-            label.grid(row=i, column=0, sticky="NSW")
-            text_box = tk.Text(self.frame_data, height=1)
-            text_box.grid(row=i, column=1, sticky=tk.NSEW)
-            self.text_widgets[attr] = [text_box]
-            if self.ui.logic.config[attr]["type"] == "list":
-                btn_add = tk.Button(self.frame_data, text="+", command=lambda a=attr: self.action_add_row(a))
-                btn_add.grid(row=i, column=2, sticky=tk.NSEW)
-                self.row_counters[attr] = i
+            list_type = self.ui.logic.config[attr]["type"] == "list"
+            frm = self.generate_attribute_frame(attr_index=i, attr_name=attr, is_list=list_type)
+            self.frames_attrs.append(frm)
 
-        # Actions
+        # Action buttons
         btn_confirm = tk.Button(
             self.frame_actions,
             text="Confirm",
+            height=1,
+            padx=20,
+            pady=10,
             command=self.action_confirm
         )
         btn_confirm.grid(
             row=1,
             column=0,
-            sticky=tk.NSEW
+            sticky=tk.EW
         )
         btn_cancel = tk.Button(
             self.frame_actions,
             text="Cancel",
+            height=1,
+            padx=20,
+            pady=10,
             command=self.action_close
         )
         btn_cancel.grid(
             row=1,
             column=1,
-            sticky=tk.NSEW
+            sticky=tk.EW
         )
 
         self.popup.protocol("WM_DELETE_WINDOW", self.action_close)
+        self.event_binding()
         self.set_geometry()
 
     def open_edit(self, member):
         """Opens a pop-up window allowing the selected member data edition"""
         # TODO Pendiente de añadir languages a los botones (y labels?)
 
+        self.create_base(mode="form")
         self.sel_member = member
-        self.create_base()
 
-        # Popup window
-        self.action_close()
-
-        table_frame = tk.Frame(self.popup)
-        table_frame.grid(row=0, column=0, sticky="nsew")
-        table_frame.columnconfigure(0, weight=25, minsize=100)
-        table_frame.columnconfigure(1, weight=75)
 
         row_index = 0
         for key, value in self.sel_member.items():
             if isinstance(value, list):
                 if value:
-                    label_key = tk.Label(table_frame, text=key.title())
+                    label_key = tk.Label(self.frame_data, text=key.title())
                     label_key.grid(row=row_index, column=0, sticky="w")
-                    text_box = tk.Text(table_frame, height=1, width=20)
+                    text_box = tk.Text(self.frame_data, height=1, width=20)
                     text_box.insert(tk.END, value[0])
                     text_box.grid(row=row_index, column=1, sticky="nsew")
                     self.text_widgets[f"{key}#0"] = text_box
                     row_index += 1
 
                     for i, item in enumerate(value[1:], start=1):
-                        label_key_empty = tk.Label(table_frame, text="")
+                        label_key_empty = tk.Label(self.frame_data, text="")
                         label_key_empty.grid(row=row_index, column=0, sticky="w")
-                        text_box = tk.Text(table_frame, height=1, width=20)
+                        text_box = tk.Text(self.frame_data, height=1, width=20)
                         text_box.insert(tk.END, item)
                         text_box.grid(row=row_index, column=1, sticky="nsew")
                         self.text_widgets[f"{key}#{i}"] = text_box
                         row_index += 1
                 else:
-                    label_key = tk.Label(table_frame, text=key.title())
+                    label_key = tk.Label(self.frame_data, text=key.title())
                     label_key.grid(row=row_index, column=0, sticky="w")
-                    text_box = tk.Text(table_frame, height=1, width=20)
+                    text_box = tk.Text(self.frame_data, height=1, width=20)
                     text_box.grid(row=row_index, column=1, sticky="nsew")
                     self.text_widgets[key] = text_box
                     row_index += 1
             else:
-                label_key = tk.Label(table_frame, text=key.title())
+                label_key = tk.Label(self.frame_data, text=key.title())
                 label_key.grid(row=row_index, column=0, sticky="w")
-                text_box = tk.Text(table_frame, height=1, width=20)
+                text_box = tk.Text(self.frame_data, height=1, width=20)
                 text_box.insert(tk.END, str(value))
                 text_box.grid(row=row_index, column=1, sticky="nsew")
                 self.text_widgets[key] = text_box
                 row_index += 1
 
-        # Crear un frame para los botones
         button_frame = tk.Frame(self.popup)
         button_frame.grid(row=1, column=0, sticky="nsew")
         button_frame.columnconfigure(0, weight=50)
         button_frame.columnconfigure(1, weight=50)
 
-        # Agregar los botones de Save y Cancel
+        # Action buttons
         save_button = tk.Button(button_frame, text="Save", command=self.action_confirm)
         save_button.grid(row=0, column=0, sticky="e", padx=10, pady=10)
 
@@ -154,43 +172,14 @@ class Popup:
         cancel_button.grid(row=0, column=1, sticky="w", padx=10, pady=10)
 
         self.popup.protocol("WM_DELETE_WINDOW", self.action_close)
-        self.upd_edit()
-
-    def upd_edit(self) -> None:
-        """Updates the member data edition pop-up"""
-
+        self.event_binding()
         self.set_geometry()
 
     def open_del(self, member) -> None:
         """Opens a pop-up window to allow deletion of the selected member"""
 
+        self.create_base(mode="info")
         self.sel_member = member
-
-        # Popup window
-        self.action_close()
-        self.popup = tk.Toplevel()
-        self.popup.rowconfigure(0, weight=50)
-        self.popup.rowconfigure(1, weight=50)
-        self.popup.columnconfigure(0, weight=100)
-
-        # Frames
-        self.frame_data = tk.Frame(self.popup)
-        self.frame_data.rowconfigure(0, weight=100)
-        self.frame_data.columnconfigure(0, weight=100)
-        self.frame_data.grid(
-            row=0,
-            column=0,
-            sticky=tk.NSEW
-        )
-        self.frame_actions = tk.Frame(self.popup)
-        self.frame_actions.rowconfigure(0, weight=100)
-        self.frame_actions.columnconfigure(0, weight=50)
-        self.frame_actions.columnconfigure(1, weight=50)
-        self.frame_actions.grid(
-            row=1,
-            column=0,
-            sticky=tk.NSEW
-        )
 
         # Label
         label_confirm = tk.Label(
@@ -227,12 +216,7 @@ class Popup:
         )
 
         self.popup.protocol("WM_DELETE_WINDOW", self.action_close)
-        self.upd_del()
-
-    # TODO pendiente update del pop-up
-    def upd_del(self) -> None:
-        """Updates the member data deletion pop-up"""
-
+        self.event_binding()
         self.set_geometry()
 
     def set_geometry(self) -> None:
@@ -243,76 +227,78 @@ class Popup:
         popup_w = self.popup.winfo_width()
         popup_h = self.popup.winfo_height()
         popup_x = self.ui.root.winfo_screenwidth() // 2 - (popup_w // 2)
-        popup_y = self.ui.root.winfo_screenheight() // 2 - (popup_h // 2)
-        self.popup.geometry(f'{popup_w}x{popup_h}+{popup_x}+{popup_y}')
+        popup_y = self.ui.root.winfo_screenheight() // 4 - (popup_h // 2)
+        self.popup.geometry(f'+{popup_x}+{popup_y}')
 
-    def action_add_row(self, attr):
-        """Adds a new row"""
+    def action_add_row(self, list_frame_index):
+        """Adds a new row inside the attribute frame"""
 
-        row_index = self.row_counters[attr] + 1
-        self.row_counters[attr] = row_index
+        if isinstance(self.frames_attrs[list_frame_index], tk.Frame):
+            sub_rows = self.frames_attrs[list_frame_index].winfo_children()
+            if isinstance(sub_rows[0], tk.Frame):
+                sub_row_index = len(sub_rows)
+                print("ok:", sub_row_index)
+                new_row_frame = tk.Frame(self.frames_attrs[list_frame_index])
+                new_row_frame.grid(column=0, sticky=tk.NSEW)
+                label = tk.Label(new_row_frame, text="", width=10, height=1)
+                label.grid(row=0, column=0, sticky="NSW")
+                text_box = tk.Text(new_row_frame, height=1)
+                text_box.grid(row=0, column=1, sticky=tk.NSEW)
+                btn_del = tk.Button(new_row_frame, text="-", command=lambda f=list_frame_index, r=sub_row_index: self.action_remove_row(attr_index=f, sub_row_index=r))
+                btn_del.grid(row=0, column=2, sticky=tk.NSEW)
+            else:
+                log.warning(f'The first sub_row {sub_rows[0]} not a tk.Frame object')
+        else:
+            log.warning(f'The attribute {self.frames_attrs[list_frame_index]} is not a tk.Frame object')
 
-        label_empty = tk.Label(self.frame_data, height=1, text="")
-        label_empty.grid(row=row_index, column=0, sticky="NSW")
+        self.event_binding()
+        self.popup.update()
 
-        text_box = tk.Text(self.frame_data, height=1)
-        text_box.grid(row=row_index, column=1, sticky=tk.NSEW)
-        self.text_widgets[attr].append(text_box)
+    def action_remove_row(self, attr_index, sub_row_index):
+        """Removes a specific sub_row inside the attribute frame"""
 
-        btn_del = tk.Button(self.frame_data, text="-", command=lambda r=row_index, a=attr: self.action_remove_row(r, a))
-        btn_del.grid(row=row_index, column=2, sticky=tk.NSEW)
+        parent_frame = self.frames_attrs[attr_index]
+        sub_rows = parent_frame.winfo_children()
 
-        self.frame_data.grid_rowconfigure(row_index, weight=1)
+        if sub_row_index < len(sub_rows):
+            sub_row = sub_rows[sub_row_index]
+            sub_row.destroy()
 
-        self.set_geometry()
+            # Update the indices of remaining sub_rows
+            remaining_sub_rows = parent_frame.winfo_children()
+            for idx, row in enumerate(remaining_sub_rows):
+                delete_button = row.grid_slaves(row=0, column=2)[0]
+                if idx == 0:
+                    delete_button.config(
+                        command=lambda f=attr_index, r=idx: self.action_add_row(f)
+                    )
+                else:
+                    delete_button.config(
+                        command=lambda f=attr_index, r=idx: self.action_remove_row(attr_index=f, sub_row_index=r)
+                    )
+        else:
+            log.warning("Invalid sub_row_index: %d", sub_row_index)
 
-    def action_remove_row(self, row_index, attr):
-        """Removes a row"""
-
-        for widget in self.frame_data.grid_slaves(row=row_index):
-            widget.grid_forget()
-        self.text_widgets[attr].pop(row_index - self.row_counters[attr])
-        self.row_counters[attr] -= 1
+        self.event_binding()
+        self.popup.update()
 
     def action_confirm(self) -> None:
         """Saves the new_data from the corresponding member"""
 
-        for key, widget in self.text_widgets.items():
-            if '#' in key:
-                main_key, index = key.rsplit('#', 1)
-                index = int(index)
-                if main_key not in vars(self.sel_member):
-                    setattr(self.sel_member, main_key, [])
-                while len(getattr(self.sel_member, main_key)) <= index:
-                    getattr(self.sel_member, main_key).append("")
-                value = widget.get("1.0", tk.END).strip()
-                if value.lower() == "true":
-                    value = True
-                elif value.lower() == "false":
-                    value = False
-                getattr(self.sel_member, main_key)[index] = value
-            else:
-                value = widget.get("1.0", tk.END).strip()
-                if value.lower() == "true":
-                    value = True
-                elif value.lower() == "false":
-                    value = False
-                setattr(self.sel_member, key, value)
+        test_member = OrderedDict([
+            ("enabled", True),
+            ("name", "ataulfo"),
+            ("family_id", 99),
+            ("age", "adult"),
+            ("exceptions", ["PeterPan"]),
+            ("person", False)
+        ])
 
-        for key, value in vars(self.sel_member).items():
-            if isinstance(value, list):
-                cleaned_list = [item for item in value if item]
-                setattr(self.sel_member, key, cleaned_list)
+        self.ui.logic.add_member(test_member)
 
-            # Actualiza el miembro en la lista
-        for i, m in enumerate(self.ui.logic.members):
-            if m["name"] == self.sel_member.name:
-                self.ui.logic.members[i] = self.sel_member
-                break
 
-        self.ui.logic.update_member(self.sel_member)
-        self.action_close()
-        self.ui.tab_conf.update_tab()
+        # self.action_close()
+        # self.ui.tab_conf.update_tab()
 
     def action_close(self):
         """Closes the popup"""
@@ -322,6 +308,7 @@ class Popup:
         if self.popup:
             self.popup.destroy()
             self.popup = None
+        self.frames_attrs.clear()
         self.text_widgets.clear()
         self.ui.tab_conf.table_sel = {
             "row": None,
@@ -335,3 +322,26 @@ class Popup:
         self.ui.logic.del_member(self.ui.tab_conf.table_sel["member"])
         self.ui.tab_conf.select(None)
         self.action_close()
+
+    def focus_prev_widget(self, event):
+        event.widget.tk_focusPrev().focus()
+        return "break"
+
+    def focus_next_widget(self, event):
+        event.widget.tk_focusNext().focus()
+        return "break"
+
+    def event_binding(self):
+        """Binds every hotkey to its component"""
+
+        def bind_recursive(widget):
+            """Recursively bind events to widgets"""
+            if isinstance(widget, tk.Frame):
+                for child in widget.winfo_children():
+                    bind_recursive(child)
+            else:
+                widget.bind("<Tab>", self.focus_next_widget)
+                widget.bind("<Shift-Tab>", self.focus_prev_widget)
+
+        for frm in self.frames_attrs:
+            bind_recursive(frm)

@@ -1,9 +1,11 @@
+import os
 import datetime as dt
 import logging as log
 from components.interface import Interface
 from components.logic import Logic
 
 # Logging configuration (./logs/...)
+os.makedirs("./logs", exist_ok=True)
 log.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",

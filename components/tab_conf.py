@@ -205,6 +205,7 @@ class Configuration:
         self.empty_table()
         self.ui.logic.load_members()
         self.ui.logic.parse_members()
+        print(self.ui.logic.members)
         for i, member in enumerate(self.ui.logic.members):
             if self.table_sel["row"] == i:
                 tags = "select"
@@ -281,7 +282,7 @@ class Configuration:
         self.table.delete(*self.table.get_children())
         self.table_last_index = 0
 
-    def on_click(self, event: tk.Event) -> str | None:
+    def on_click(self, event: tk.Event) -> str or None:
         """Called on click event"""
 
         if not self.ui.pu.popup:

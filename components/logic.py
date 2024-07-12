@@ -3,6 +3,7 @@
 import json
 import logging as log
 import random as r
+import builtins
 from collections import OrderedDict
 
 
@@ -32,11 +33,67 @@ class Logic:
         with open("data/data.json") as f:
             self.members = json.load(f, object_pairs_hook=OrderedDict)
 
+    def validate_member(self, member: OrderedDict) -> OrderedDict:
+        """Validates the new member data and returns it"""
+
+        validated_member = OrderedDict()
+
+        for key, value in member.items():
+            if key in self.config:
+                expected_type = self.config[key]["type"]
+                allowed_values = self.config[key]["value"]
+
+                # Validate data types
+                if expected_type == "bool":
+                    if not isinstance(value, bool):
+                        log.warning(f'{key} must be a boolean type')
+                        return False
+                elif expected_type == "str":
+                    if not isinstance(value, str):
+                        log.warning(f'{key} must be a string type')
+                        return False
+                elif expected_type == "int":
+                    if not isinstance(value, int):
+                        log.warning(f'{key} must be a integer type')
+                        return False
+                elif expected_type == "list":
+                    if not isinstance(value, list):
+                        log.warning(f'{key} must be a list type')
+                        return False
+
+                # Validate allowed values
+                if allowed_values is not None:
+                    if value not in allowed_values:
+                        log.warning(f'{key} value is not allowed')
+                        return False
+
+                validated_member[key] = value
+
+            else:
+                log.warning(f'Attribute {key} not recognized in the config file. Skipping')
+
+        # Validate every required attribute is included
+        for key in self.config:
+            if key not in validated_member:
+                log.warning(f'{key} attribute required')
+                return False
+
+        return validated_member
+
     def add_member(self, member):
         """Adds a new member to the data file"""
-        
-        self.members.append(member)
-        self.save_data()
+
+        validation = self.validate_member(member)
+        if validation:
+            member_names = [m["name"] for m in self.members]
+            if member["name"] not in member_names:
+                self.members.append(validation)
+                log.info("New member added")
+                self.save_data()
+            else:
+                log.warning("Member already exists")
+        else:
+            log.warning("Invalid new member data. Skipping addition")
 
     def update_member(self, updated_member: object) -> None:
         """Edits an existing member data from the data file"""

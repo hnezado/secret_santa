@@ -1,25 +1,25 @@
 {
   "enabled": {
     "type": "bool",
-    "values": null
+    "value": null
   },
   "name": {
     "type": "str",
-    "values": null
+    "value": null
   },
   "family_id": {
     "type": "int",
-    "values": null
+    "value": null
   },
   "age": {
     "type": "str",
-    "values": [
+    "value": [
       "adult",
       "child"
     ]
   },
   "exceptions": {
     "type": "list",
-    "values": null
+    "value": null
   }
 }

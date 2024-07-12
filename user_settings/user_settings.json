@@ -1,5 +1,5 @@
 {
   "lang": "en",
   "style": "secret_santa",
-  "input_file": "./config.json"
+  "input_file": "./data/data.json"
 }
